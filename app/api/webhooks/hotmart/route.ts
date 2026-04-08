@@ -5,7 +5,7 @@ export async function POST(req: Request) {
   try {
     const payload = await req.json();
 
-    const email = payload?.data?.buyer?.email;
+    const email = payload?.data?.buyer?.email?.toLowerCase();
     const name = payload?.data?.buyer?.name;
     const document = payload?.data?.buyer?.document;
     const transaction = payload?.data?.purchase?.transaction;
@@ -13,11 +13,15 @@ export async function POST(req: Request) {
     const productName = payload?.data?.product?.name;
     const productId = payload?.data?.product?.id;
 
-    if (!email || !document || !transaction) {
+    if (!email || !transaction) {
       return Response.json({ ok: false, error: "Datos incompletos" }, { status: 400 });
     }
 
-    const documentHash = hashDocument(document);
+    let documentHash = null;
+
+    if (document) {
+      documentHash = hashDocument(document);
+    }
 
     // Buscar o crear buyer
     let { data: buyer } = await supabase
@@ -33,7 +37,7 @@ export async function POST(req: Request) {
           email,
           name,
           document_hash: documentHash,
-          document_last4: document.slice(-4),
+          document_last4: document ? document.slice(-4) : null,
         })
         .select()
         .single();
@@ -41,14 +45,14 @@ export async function POST(req: Request) {
       buyer = newBuyer;
     }
 
-    // Insertar compra
+    // Insertar o actualizar compra
     await supabase.from("purchases").upsert({
       hotmart_transaction: transaction,
       buyer_id: buyer.id,
       product_id: productId,
       product_name: productName,
       status,
-      approved_at: status === "approved" ? new Date().toISOString() : null,
+      approved_at: status === "APPROVED" ? new Date().toISOString() : null,
       raw_payload: payload,
     });
 
