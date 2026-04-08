@@ -1,6 +1,12 @@
 import { supabase } from "@/lib/supabase";
 import { hashDocument } from "@/lib/auth";
 
+function addOneYear(date = new Date()) {
+  const d = new Date(date);
+  d.setFullYear(d.getFullYear() + 1);
+  return d.toISOString();
+}
+
 export async function POST(req: Request) {
   try {
     const payload = await req.json();
@@ -31,7 +37,7 @@ export async function POST(req: Request) {
       .maybeSingle();
 
     if (!buyer) {
-      const { data: newBuyer } = await supabase
+      const { data: newBuyer, error: buyerError } = await supabase
         .from("buyers")
         .insert({
           email,
@@ -42,19 +48,44 @@ export async function POST(req: Request) {
         .select()
         .single();
 
+      if (buyerError || !newBuyer) {
+        return Response.json({ ok: false, error: "No se pudo crear buyer" }, { status: 500 });
+      }
+
       buyer = newBuyer;
     }
 
+    // Lógica de suscripción
+    let subscriptionStatus: string | null = null;
+    let expiresAt: string | null = null;
+    let approvedAt: string | null = null;
+
+    if (status === "APPROVED") {
+      subscriptionStatus = "active";
+      expiresAt = addOneYear();
+      approvedAt = new Date().toISOString();
+    } else if (["CANCELLED", "EXPIRED", "REFUNDED", "CHARGEBACK"].includes(status)) {
+      subscriptionStatus = "inactive";
+      expiresAt = null;
+      approvedAt = null;
+    }
+
     // Insertar o actualizar compra
-    await supabase.from("purchases").upsert({
+    const { error: purchaseError } = await supabase.from("purchases").upsert({
       hotmart_transaction: transaction,
       buyer_id: buyer.id,
       product_id: productId,
       product_name: productName,
       status,
-      approved_at: status === "APPROVED" ? new Date().toISOString() : null,
+      approved_at: approvedAt,
+      expires_at: expiresAt,
+      subscription_status: subscriptionStatus,
       raw_payload: payload,
     });
+
+    if (purchaseError) {
+      return Response.json({ ok: false, error: purchaseError.message }, { status: 500 });
+    }
 
     return Response.json({ ok: true });
   } catch (error) {
