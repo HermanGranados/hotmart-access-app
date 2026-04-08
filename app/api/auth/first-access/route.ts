@@ -3,11 +3,18 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   try {
-    const { email, document } = await req.json();
+    const { email, document, password } = await req.json();
 
-    if (!email || !document) {
+    if (!email || !document || !password) {
       return Response.json(
-        { ok: false, error: "Faltan datos" },
+        { ok: false, step: "validacion-inicial", error: "Faltan datos" },
+        { status: 400 }
+      );
+    }
+
+    if (String(password).length < 8) {
+      return Response.json(
+        { ok: false, step: "validacion-password", error: "La contraseña debe tener al menos 8 caracteres" },
         { status: 400 }
       );
     }
@@ -23,14 +30,14 @@ export async function POST(req: Request) {
 
     if (buyerError || !buyer) {
       return Response.json(
-        { ok: false, error: "Comprador no encontrado" },
+        { ok: false, step: "buscar-buyer", error: "Comprador no encontrado" },
         { status: 404 }
       );
     }
 
     if (buyer.document_hash !== documentHash) {
       return Response.json(
-        { ok: false, error: "Documento incorrecto" },
+        { ok: false, step: "validar-documento", error: "Documento incorrecto" },
         { status: 401 }
       );
     }
@@ -40,11 +47,19 @@ export async function POST(req: Request) {
       .select("*")
       .eq("buyer_id", buyer.id)
       .eq("status", "APPROVED")
+      .eq("subscription_status", "active")
       .maybeSingle();
 
     if (purchaseError || !purchase) {
       return Response.json(
-        { ok: false, error: "No hay compra aprobada" },
+        { ok: false, step: "buscar-compra", error: "No tienes una suscripción activa" },
+        { status: 403 }
+      );
+    }
+
+    if (!purchase.expires_at || new Date(purchase.expires_at) < new Date()) {
+      return Response.json(
+        { ok: false, step: "validar-expiracion", error: "Tu acceso ha expirado" },
         { status: 403 }
       );
     }
@@ -54,7 +69,7 @@ export async function POST(req: Request) {
 
     if (listUsersError) {
       return Response.json(
-        { ok: false, error: listUsersError.message },
+        { ok: false, step: "listar-usuarios-auth", error: listUsersError.message },
         { status: 500 }
       );
     }
@@ -64,9 +79,10 @@ export async function POST(req: Request) {
     );
 
     if (!existingUser) {
-      const { error: createUserError } =
+      const { data, error: createUserError } =
         await supabaseAdmin.auth.admin.createUser({
           email: cleanEmail,
+          password: String(password),
           email_confirm: true,
           user_metadata: {
             buyer_id: buyer.id,
@@ -76,33 +92,41 @@ export async function POST(req: Request) {
 
       if (createUserError) {
         return Response.json(
-          { ok: false, error: createUserError.message },
+          { ok: false, step: "createUser", error: createUserError.message, details: data ?? null },
+          { status: 500 }
+        );
+      }
+    } else {
+      const { data, error: updateUserError } =
+        await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+          password: String(password),
+          email_confirm: true,
+          user_metadata: {
+            buyer_id: buyer.id,
+            name: buyer.name,
+          },
+        });
+
+      if (updateUserError) {
+        return Response.json(
+          { ok: false, step: "updateUserById", error: updateUserError.message, details: data ?? null },
           { status: 500 }
         );
       }
     }
 
-    const { error: otpError } = await supabaseAdmin.auth.signInWithOtp({
-      email: cleanEmail,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
-      },
-    });
-
-    if (otpError) {
-      return Response.json(
-        { ok: false, error: otpError.message },
-        { status: 500 }
-      );
-    }
-
     return Response.json({
       ok: true,
-      message: "Te enviamos un enlace de acceso a tu correo.",
+      step: "fin",
+      message: "Contraseña creada correctamente. Ya puedes iniciar sesión.",
     });
-  } catch {
+  } catch (error) {
     return Response.json(
-      { ok: false, error: "Error interno" },
+      {
+        ok: false,
+        step: "catch",
+        error: error instanceof Error ? error.message : "Error interno",
+      },
       { status: 500 }
     );
   }
