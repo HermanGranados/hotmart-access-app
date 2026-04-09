@@ -164,6 +164,7 @@ function CalcMACFlow({ onBack }: { onBack: () => void }) {
   const [fgf, setFgf] = useState("1.0");
   const [conc, setConc] = useState("2.0");
   const [dur, setDur] = useState("1.0");
+  const [showProfile, setShowProfile] = useState(false);
 
   const isSevo = anesthetic === "Sevoflurano";
 
@@ -652,15 +653,6 @@ export default function VaporaClient({
               <p className="text-sm text-slate-500 mt-2">
                 Calculadoras diseñadas para anestesiólogos que quieren rapidez, claridad y seguridad clínica.
               </p>
-
-              <div className="mt-4 space-y-1">
-                <p className="text-xs text-slate-400">
-                  Usuario actual: {userEmail || "sin sesión"}
-                </p>
-                <p className="text-xs text-slate-400">
-                  Premium: {isPremium ? "sí" : "no"}
-                </p>
-              </div>
             </div>
 
             <div className="px-4 space-y-4 pb-10">
