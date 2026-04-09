@@ -205,13 +205,20 @@ export default function LoginPage() {
 
       <div className="relative mx-auto max-w-md">
         <div className="pt-4 text-center">
-          <div className="mx-auto mb-6 flex h-28 w-28 items-center justify-center rounded-[32px] border border-white/60 bg-white/55 shadow-[0_12px_40px_rgba(31,41,55,0.08)] backdrop-blur-xl">
-            <img
-              src="https://academiadeanestesia.com/wp-content/uploads/2026/04/vapora-app-ico.png"
-              alt="Vapora"
-              className="h-16 w-16 object-contain"
-            />
-          </div>
+          <div className="relative mb-8 flex justify-center">
+  {/* Glow fondo */}
+  <div className="absolute h-[140px] w-[140px] rounded-[40px] bg-gradient-to-br from-cyan-200 via-blue-200 to-violet-200 blur-2xl opacity-60" />
+
+  {/* Contenedor glass */}
+  <div className="relative flex h-[120px] w-[120px] items-center justify-center rounded-[32px] bg-white/40 shadow-[0_20px_60px_rgba(15,23,42,0.25)] backdrop-blur-2xl ring-1 ring-white/50">
+
+    <img
+      src="https://academiadeanestesia.com/wp-content/uploads/2026/04/vapora-app-ico-ios.png"
+      alt="Vapora"
+      className="h-[90px] w-[90px] object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.25)]"
+    />
+  </div>
+</div>
 
           <h1 className="text-4xl font-black tracking-tight text-slate-900">
             Vapora
