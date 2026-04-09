@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import VaporaClient from "./VaporaClient";
-import { getUserPremiumStatus } from "@/lib/get-user-premium";
+import { getUserMembership } from "@/lib/get-user-membership";
 
 export default async function Page() {
   const supabase = await createSupabaseServerClient();
@@ -13,12 +13,14 @@ export default async function Page() {
     redirect("/login");
   }
 
-  const isPremium = await getUserPremiumStatus(user.email!);
+  const membership = await getUserMembership(user.email!);
 
   return (
     <VaporaClient
-      isPremium={isPremium}
-      userEmail={user.email ?? ""}
+      isPremium={membership.isPremium}
+      userEmail={membership.email}
+      planName={membership.planName}
+      daysRemaining={membership.daysRemaining}
     />
   );
 }
