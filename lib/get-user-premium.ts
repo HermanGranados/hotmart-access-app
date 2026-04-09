@@ -1,35 +1,51 @@
-import { createSupabaseServerClient } from "./supabase-server";
+import "server-only";
+import { createSupabaseAdminClient } from "./supabase-admin";
 
 export async function getUserPremiumStatus(email: string) {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
+  const normalizedEmail = email.trim().toLowerCase();
 
-  // 1. buscar buyer
-  const { data: buyer } = await supabase
+  const { data: buyer, error: buyerError } = await supabase
     .from("buyers")
-    .select("id")
-    .eq("email", email)
-    .single();
+    .select("id, email")
+    .eq("email", normalizedEmail)
+    .maybeSingle();
 
-  if (!buyer) return false;
+  console.log("PREMIUM buyer lookup:", {
+    normalizedEmail,
+    buyer,
+    buyerError,
+  });
 
-  // 2. buscar compra activa
-  const now = new Date().toISOString();
+  if (buyerError || !buyer) return false;
 
-  const { data: purchases } = await supabase
+  const { data: purchases, error: purchasesError } = await supabase
     .from("purchases")
-    .select("*")
+    .select("id, product_id, status, subscription_status, expires_at")
     .eq("buyer_id", buyer.id)
     .eq("status", "APPROVED")
     .eq("subscription_status", "active");
 
-  if (!purchases || purchases.length === 0) return false;
+  console.log("PREMIUM purchases lookup:", {
+    purchases,
+    purchasesError,
+  });
 
-  // 3. validar expiración + producto
+  if (purchasesError || !purchases?.length) return false;
+
+  const now = Date.now();
+
   const hasAccess = purchases.some((p) => {
-    const notExpired = !p.expires_at || p.expires_at > now;
     const isVapora = p.product_id === "vapora-anual-001";
+    const notExpired =
+      !p.expires_at || new Date(p.expires_at).getTime() > now;
 
-    return notExpired && isVapora;
+    return isVapora && notExpired;
+  });
+
+  console.log("PREMIUM final result:", {
+    email: normalizedEmail,
+    hasAccess,
   });
 
   return hasAccess;

@@ -5,7 +5,6 @@ import { getUserPremiumStatus } from "@/lib/get-user-premium";
 
 export default async function Page() {
   const supabase = await createSupabaseServerClient();
-
   const { data } = await supabase.auth.getUser();
 
   const user = data?.user;
