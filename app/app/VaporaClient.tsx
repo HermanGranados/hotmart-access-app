@@ -2,7 +2,26 @@
 
 import { useState } from "react";
 import CalcANALGESIQ from "./CalcANALGESIQ";
+<div className="fixed top-0 left-0 right-0 z-40 flex justify-center">
+  <div className="w-full max-w-md px-4 pt-4">
+    <div className="flex items-center justify-between rounded-2xl border border-white/40 bg-white/60 px-4 py-3 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl">
 
+      {/* Título */}
+      <h1 className="text-[18px] font-black tracking-tight text-slate-900">
+        Vapora
+      </h1>
+
+      {/* Botón perfil */}
+      <button
+        onClick={() => setShowProfile(true)}
+        className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/70 shadow-sm ring-1 ring-black/5 backdrop-blur-lg transition hover:bg-white"
+      >
+        <UserIcon className="h-4 w-4 text-slate-700" />
+      </button>
+
+    </div>
+  </div>
+</div>
 function ActivityIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -172,7 +191,7 @@ function CalcMACFlow({ onBack }: { onBack: () => void }) {
   const total = rate * numDur;
 
   return (
-    <div className="min-h-screen bg-white sm:bg-[#F0EAE6] font-sans text-slate-800">
+    <div className="min-h-screen pt-24 bg-white sm:bg-[#F0EAE6] font-sans text-slate-800">
       <div className="max-w-md mx-auto bg-white min-h-screen sm:border-x border-slate-200 flex flex-col">
         <AppHeader onBack={onBack} />
 
@@ -621,9 +640,6 @@ export default function VaporaClient({
 </button>
 </div>
             <div className="pt-10 pb-6 text-center">
-              <h1 className="text-3xl font-black bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F39169] bg-clip-text text-transparent">
-                VAPORA
-              </h1>
               <p className="text-sm text-slate-400 font-semibold mt-2">
                 Herramientas clínicas para anestesia
               </p>

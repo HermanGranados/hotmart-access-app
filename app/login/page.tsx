@@ -335,7 +335,7 @@ export default function LoginPage() {
                 disabled={loading}
                 className="w-full rounded-2xl bg-gradient-to-r from-[#2D74DA] to-[#4C8EF0] px-4 py-4 text-lg font-bold text-white shadow-[0_10px_24px_rgba(45,116,218,0.28)] transition hover:scale-[1.01] disabled:opacity-60"
               >
-                {loading ? "Entrando..." : "Iniciar sesión"}
+                {loading ? "Entrando..." : "Iniciar Sesión"}
               </button>
             )}
 
