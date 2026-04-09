@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -10,7 +10,7 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-
+const supabaseAdmin = createSupabaseAdminClient();
     const { error } = await supabaseAdmin.auth.resetPasswordForEmail(
       String(email).trim().toLowerCase(),
       {
