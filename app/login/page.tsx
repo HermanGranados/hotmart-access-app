@@ -271,7 +271,7 @@ export default function LoginPage() {
                 <MailIcon className="mr-3 h-5 w-5 text-slate-400" />
                 <input
                   type="email"
-                  placeholder="tu@correo.com"
+                  placeholder="ejemplo@mail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full bg-transparent text-base text-slate-800 outline-none placeholder:text-slate-400"
