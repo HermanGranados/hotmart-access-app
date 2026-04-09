@@ -58,6 +58,34 @@ function MACFlowIcon({ className }: { className?: string }) {
   );
 }
 
+function LOCUDoseIcon({ className }: { className?: string }) {
+  return (
+    <img
+      src="https://academiadeanestesia.com/wp-content/uploads/2026/03/calculator.png"
+      alt="LOCUDose Logo"
+      className={className}
+    />
+  );
+}
+
+function AppHeader({ onBack }: { onBack: () => void }) {
+  return (
+    <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+      <div className="h-20 flex items-center justify-center relative px-4">
+        <button
+          onClick={onBack}
+          className="absolute left-4 p-2 rounded-full hover:bg-[#F3EDE9] text-slate-600 transition-colors"
+        >
+          <ArrowLeftIcon className="w-6 h-6" />
+        </button>
+        <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F39169] bg-clip-text text-transparent tracking-wide">
+          VAPORA.app
+        </h1>
+      </div>
+    </header>
+  );
+}
+
 function CalcMACFlow({ onBack }: { onBack: () => void }) {
   const [anesthetic, setAnesthetic] = useState<"Sevoflurano" | "Desflurano">("Sevoflurano");
   const [fgf, setFgf] = useState("1.0");
@@ -92,28 +120,14 @@ function CalcMACFlow({ onBack }: { onBack: () => void }) {
   return (
     <div className="min-h-screen bg-white sm:bg-[#F0EAE6] font-sans text-slate-800">
       <div className="max-w-md mx-auto bg-white min-h-screen sm:border-x border-slate-200 flex flex-col">
-        <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
-          <div className="h-20 flex items-center justify-center relative px-4">
-            <button
-              onClick={onBack}
-              className="absolute left-4 p-2 rounded-full hover:bg-[#F3EDE9] text-slate-600 transition-colors"
-            >
-              <ArrowLeftIcon className="w-6 h-6" />
-            </button>
-            <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F39169] bg-clip-text text-transparent tracking-wide">
-              VAPORA.app
-            </h1>
-          </div>
-        </header>
+        <AppHeader onBack={onBack} />
 
         <main className="flex-1 bg-white flex flex-col w-full pb-12">
           <div className="h-2 w-full bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F39169] flex-shrink-0" />
 
           <div className="pt-8 pb-4 px-5 text-center flex flex-col items-center bg-white flex-shrink-0 border-b border-[#F0EAE6]">
             <MACFlowIcon className="w-16 h-16 sm:w-20 sm:h-20 mb-4 object-contain" />
-            <h2
-              className={`text-4xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r ${theme.textGradient} mb-1 transition-all duration-300`}
-            >
+            <h2 className={`text-4xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r ${theme.textGradient} mb-1 transition-all duration-300`}>
               MACFLOW
             </h2>
             <p className="text-slate-500 font-bold text-xs sm:text-sm tracking-[0.2em] uppercase mb-2">
@@ -235,9 +249,7 @@ function CalcMACFlow({ onBack }: { onBack: () => void }) {
             <div className={`${theme.bg} rounded-xl p-6 mt-8 shadow-sm transition-colors duration-300 text-center`}>
               <div className="flex flex-col items-center justify-center space-y-4">
                 <div>
-                  <p className="text-sm uppercase tracking-wider font-bold text-slate-900/70">
-                    Tasa por Hora
-                  </p>
+                  <p className="text-sm uppercase tracking-wider font-bold text-slate-900/70">Tasa por Hora</p>
                   <p className="text-4xl font-black text-slate-900">
                     {rate.toFixed(1)} <span className="text-xl font-medium opacity-80">ml/h</span>
                   </p>
@@ -246,9 +258,7 @@ function CalcMACFlow({ onBack }: { onBack: () => void }) {
                 <div className="w-full h-px bg-white/40" />
 
                 <div>
-                  <p className="text-sm uppercase tracking-wider font-bold text-slate-900/70">
-                    Consumo Total
-                  </p>
+                  <p className="text-sm uppercase tracking-wider font-bold text-slate-900/70">Consumo Total</p>
                   <p className="text-5xl font-black text-slate-900">
                     {total.toFixed(1)} <span className="text-2xl font-medium opacity-80">ml</span>
                   </p>
@@ -260,12 +270,262 @@ function CalcMACFlow({ onBack }: { onBack: () => void }) {
               <AlertCircleIcon className="w-6 h-6 text-[#F39169] mr-3 flex-shrink-0 mt-0.5" />
               <p className="text-sm sm:text-base text-slate-700">
                 <strong>Referencia:</strong> Para {anesthetic} suele sugerirse cobro estándar de{" "}
-                <span className="font-semibold bg-white px-2 py-0.5 rounded shadow-sm">
-                  {theme.billing}
-                </span>
-                . (Fórmula: 3 × {numFgf} × {numConc}).
+                <span className="font-semibold bg-white px-2 py-0.5 rounded shadow-sm">{theme.billing}</span>.
+                {" "} (Fórmula: 3 × {numFgf} × {numConc}).
               </p>
             </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function CalcLOCUDose({ onBack }: { onBack: () => void }) {
+  const [mode, setMode] = useState<"bomba" | "regional">("bomba");
+  const [stockConc, setStockConc] = useState(0.5);
+  const [finalConc, setFinalConc] = useState("");
+  const [finalVol, setFinalVol] = useState("");
+  const [weight, setWeight] = useState("");
+  const [regionalAnes, setRegionalAnes] = useState({
+    label: "Bupivacaína 0.25%",
+    conc: 0.25,
+    max: 2,
+  });
+
+  let errorMsg = "";
+  let reqVol: number | null = null;
+  let diluent: number | null = null;
+  let maxVol: number | null = null;
+  let totalMg: number | null = null;
+
+  if (mode === "bomba") {
+    const c2 = parseFloat(finalConc);
+    const v2 = parseFloat(finalVol);
+    const c1 = stockConc;
+
+    if (c1 > 0 && !isNaN(c2) && !isNaN(v2) && c2 > 0 && v2 > 0) {
+      if (c2 > c1) {
+        errorMsg = "Error: C. Final > C. Origen";
+      } else {
+        reqVol = (c2 * v2) / c1;
+        diluent = v2 - reqVol;
+      }
+    }
+  } else {
+    const w = parseInt(weight, 10);
+
+    if (w > 0 && !isNaN(w)) {
+      totalMg = regionalAnes.max * w;
+      maxVol = regionalAnes.max * (w / 10) * (1 / regionalAnes.conc);
+    }
+  }
+
+  const bombaOptions = [
+    { label: "Bupivacaína 0.5%", val: 0.5 },
+    { label: "Ropivacaína 0.2%", val: 0.2 },
+    { label: "Ropivacaína 0.75%", val: 0.75 },
+    { label: "Levobupivacaína 1%", val: 1.0 },
+  ];
+
+  const regionalOptions = [
+    { label: "Bupivacaína 0.25%", conc: 0.25, max: 2 },
+    { label: "Bupivacaína 0.5%", conc: 0.5, max: 2 },
+    { label: "Ropivacaína 0.2%", conc: 0.2, max: 3 },
+    { label: "Ropivacaína 0.75%", conc: 0.75, max: 3 },
+    { label: "Lidocaína 1%", conc: 1.0, max: 4.5 },
+    { label: "Lidocaína 2%", conc: 2.0, max: 4.5 },
+    { label: "Levobupivacaína 0.5%", conc: 0.5, max: 2 },
+    { label: "Levobupivacaína 1%", conc: 1.0, max: 2 },
+  ];
+
+  return (
+    <div className="min-h-screen bg-white sm:bg-[#F0EAE6] font-sans text-slate-800">
+      <div className="max-w-md mx-auto bg-white min-h-screen sm:border-x border-slate-200 flex flex-col">
+        <AppHeader onBack={onBack} />
+
+        <main className="bg-white flex-1 flex flex-col w-full pb-12">
+          <div className="h-2 w-full bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] via-[#F39169] to-[#F9CE6F] flex-shrink-0" />
+
+          <div className="pt-8 pb-6 px-6 border-b border-[#F0EAE6] text-center flex flex-col items-center">
+            <LOCUDoseIcon className="w-16 h-16 sm:w-20 sm:h-20 mb-4 object-contain" />
+            <h2 className="text-4xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-[#65C4EB] to-[#BDABF5] mb-2 uppercase">
+              LocuDose
+            </h2>
+            <p className="text-slate-400 font-bold text-xs sm:text-sm tracking-[0.15em] uppercase mb-4">
+              Calculadora de Anestésico Local
+            </p>
+          </div>
+
+          <div className="px-4 sm:px-6 py-6 space-y-6 flex-grow bg-white">
+            <div className="flex bg-[#F3EDE9] p-1.5 rounded-xl relative">
+              <button
+                onClick={() => setMode("bomba")}
+                className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-lg transition-all ${
+                  mode === "bomba"
+                    ? "bg-white text-[#F39169] shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                Bomba Elastomérica
+              </button>
+              <button
+                onClick={() => setMode("regional")}
+                className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-lg transition-all ${
+                  mode === "regional"
+                    ? "bg-white text-[#F39169] shadow-sm"
+                    : "text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                Anestesia Regional
+              </button>
+            </div>
+
+            {mode === "bomba" && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-base font-semibold text-slate-700 mb-2">
+                    Anestésico Local a utilizar
+                  </label>
+                  <div className="bg-[#F3EDE9]/50 border border-[#F0EAE6] p-4 rounded-xl space-y-3">
+                    {bombaOptions.map((opt) => (
+                      <label key={opt.label} className="flex items-center text-sm sm:text-base text-slate-600 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="bomba_stock"
+                          value={opt.val}
+                          checked={stockConc === opt.val}
+                          onChange={() => setStockConc(opt.val)}
+                          className="w-5 h-5 mr-3 accent-[#F39169]"
+                        />
+                        {opt.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-base font-semibold text-slate-700 mb-2">
+                    Concentración Final Deseada:
+                  </label>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-4 text-[#BDABF5] font-bold text-lg">%</span>
+                    <input
+                      type="number"
+                      step="0.001"
+                      min="0"
+                      placeholder="Ej. 0.125"
+                      value={finalConc}
+                      onChange={(e) => setFinalConc(e.target.value)}
+                      className="w-full py-4 pl-12 pr-4 text-slate-800 text-base font-medium border border-[#F3EDE9] rounded-xl focus:border-[#65C4EB] focus:ring-2 focus:ring-[#65C4EB]/20 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-base font-semibold text-slate-700 mb-2">
+                    Volumen Final Deseado:
+                  </label>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-4 text-[#BDABF5] font-bold text-lg">ml</span>
+                    <input
+                      type="number"
+                      step="0.1"
+                      min="0"
+                      placeholder="Ej. 100"
+                      value={finalVol}
+                      onChange={(e) => setFinalVol(e.target.value)}
+                      className="w-full py-4 pl-12 pr-4 text-slate-800 text-base font-medium border border-[#F3EDE9] rounded-xl focus:border-[#65C4EB] focus:ring-2 focus:ring-[#65C4EB]/20 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {mode === "regional" && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-base font-semibold text-slate-700 mb-2">
+                    Peso del Paciente:
+                  </label>
+                  <div className="relative flex items-center">
+                    <span className="absolute left-4 text-[#BDABF5] font-bold text-lg">kg</span>
+                    <input
+                      type="number"
+                      step="1"
+                      min="1"
+                      placeholder="Ej. 70"
+                      value={weight}
+                      onChange={(e) => setWeight(e.target.value.replace(/[^0-9]/g, ""))}
+                      className="w-full py-4 pl-14 pr-4 text-slate-800 text-base font-medium border border-[#F3EDE9] rounded-xl focus:border-[#65C4EB] focus:ring-2 focus:ring-[#65C4EB]/20 outline-none transition-all"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-base font-semibold text-slate-700 mb-2">
+                    Anestésico Local a utilizar
+                  </label>
+                  <div className="bg-[#F3EDE9]/50 border border-[#F0EAE6] p-4 rounded-xl grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {regionalOptions.map((opt) => (
+                      <label key={opt.label} className="flex items-center text-sm sm:text-base text-slate-600 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="regional_anes"
+                          checked={regionalAnes.label === opt.label}
+                          onChange={() => setRegionalAnes(opt)}
+                          className="w-5 h-5 mr-3 accent-[#F39169] flex-shrink-0"
+                        />
+                        <span className="truncate">{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-white p-6 rounded-2xl border-2 border-[#F3EDE9] shadow-sm text-center mt-8">
+              <h4 className="text-sm font-bold text-slate-700 uppercase tracking-widest mb-4">
+                {mode === "bomba" ? "Volumen de Anestésico Requerido" : "Volumen Máximo Permitido"}
+              </h4>
+
+              <div className="inline-flex items-baseline justify-center bg-[#F0EAE6] px-8 py-4 rounded-xl border border-[#F3EDE9]">
+                {errorMsg ? (
+                  <span className="text-red-500 font-bold text-sm sm:text-base">{errorMsg}</span>
+                ) : (
+                  <>
+                    <span className="font-black text-5xl text-[#F39169]">
+                      {mode === "bomba"
+                        ? reqVol !== null
+                          ? reqVol.toFixed(1)
+                          : "0.0"
+                        : maxVol !== null
+                        ? maxVol.toFixed(1)
+                        : "0.0"}
+                    </span>
+                    <span className="text-[#65C4EB] font-bold text-xl ml-2">ml</span>
+                  </>
+                )}
+              </div>
+
+              {mode === "regional" && totalMg !== null && (
+                <div className="mt-6 text-base text-slate-500 font-medium">
+                  Dosis total equivalente:
+                  <span className="text-[#F39169] font-black text-lg ml-1">{totalMg.toFixed(0)} mg</span>
+                </div>
+              )}
+            </div>
+
+            {mode === "bomba" && diluent !== null && !errorMsg && (
+              <div className="bg-[#F3EDE9]/70 p-5 rounded-xl border-2 border-[#F9CE6F] text-center mt-6">
+                <span className="block text-sm sm:text-base text-slate-600 font-medium mb-1">
+                  Volumen de Diluyente a agregar:
+                </span>
+                <div className="font-bold text-3xl text-[#65C4EB]">
+                  {diluent.toFixed(1)} <span className="text-lg">ml</span>
+                </div>
+              </div>
+            )}
           </div>
         </main>
       </div>
@@ -309,7 +569,7 @@ export default function VaporaClient() {
         )}
 
         {vistaActual === "mac" && <CalcMACFlow onBack={() => setVistaActual("home")} />}
-        {vistaActual === "locu" && <div className="mt-4">LOCUDose (siguiente paso)</div>}
+        {vistaActual === "locu" && <CalcLOCUDose onBack={() => setVistaActual("home")} />}
         {vistaActual === "analgesiq" && <div className="mt-4">ANALGESIQ (siguiente paso)</div>}
       </div>
     </div>
