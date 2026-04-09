@@ -612,6 +612,14 @@ export default function VaporaClient({
       {vistaActual === "home" && (
         <div className="min-h-screen bg-[#F0EAE6] flex justify-center">
           <div className="w-full max-w-md bg-white min-h-screen sm:border-x border-slate-200">
+            <div className="flex justify-end px-5 pt-5">
+  <button
+    onClick={() => setShowProfile(true)}
+    className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/70 bg-white/70 shadow-sm backdrop-blur-xl"
+  >
+    <UserIcon className="h-5 w-5 text-slate-700" />
+  </button>
+</div>
             <div className="pt-10 pb-6 text-center">
               <h1 className="text-3xl font-black bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F39169] bg-clip-text text-transparent">
                 VAPORA
@@ -727,6 +735,77 @@ export default function VaporaClient({
       {vistaActual === "analgesiq" && isPremium && (
         <CalcANALGESIQ onBack={() => setVistaActual("home")} />
       )}
+    {showProfile && (
+  <div className="fixed inset-0 z-50 flex justify-end bg-black/30 backdrop-blur-sm">
+    <div className="h-full w-full max-w-sm bg-[#F8FAFC] p-6 shadow-2xl">
+      <div className="mb-6 flex items-center justify-between">
+        <h2 className="text-2xl font-black text-slate-900">Mi perfil</h2>
+        <button onClick={() => setShowProfile(false)}>
+          <XIcon className="h-6 w-6 text-slate-500" />
+        </button>
+      </div>
+
+      <div className="space-y-6">
+        <div className="flex gap-4">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50">
+            <UserIcon className="h-7 w-7 text-blue-600" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-slate-500">Correo electrónico</p>
+            <p className="text-2xl font-black text-slate-900 break-all">{userEmail}</p>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-200 pt-6 space-y-6">
+          <div className="flex gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50">
+              <CrownIcon className="h-7 w-7 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-500">Plan de suscripción</p>
+              <p className="text-2xl font-black text-slate-900">
+                {planName ?? "Sin plan activo"}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50">
+              <CalendarIcon className="h-7 w-7 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-slate-500">Días restantes</p>
+              <p className="text-2xl font-black text-slate-900">
+                {daysRemaining !== null ? `${daysRemaining} días` : "—"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-slate-200 pt-6 space-y-4">
+          <button
+            onClick={() => {
+              setShowProfile(false);
+              window.location.href = "/reset-password";
+            }}
+            className="flex w-full items-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-left text-xl font-bold text-slate-900"
+          >
+            <KeyIcon className="h-5 w-5" />
+            Cambiar contraseña
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 px-2 py-3 text-left text-xl font-bold text-red-600"
+          >
+            <LogOutIcon className="h-5 w-5" />
+            Cerrar sesión
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
     </>
   );
 }
