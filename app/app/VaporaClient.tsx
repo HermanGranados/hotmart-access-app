@@ -533,7 +533,11 @@ function CalcLOCUDose({ onBack }: { onBack: () => void }) {
   );
 }
 
-export default function VaporaClient() {
+type Props = {
+  isPremium: boolean;
+};
+
+export default function VaporaClient({ isPremium }: Props) {
   const [vistaActual, setVistaActual] = useState<"home" | "mac" | "locu" | "analgesiq">("home");
 
   return (
@@ -558,12 +562,15 @@ export default function VaporaClient() {
                 LOCUDose
               </button>
 
-              <button
-                onClick={() => setVistaActual("analgesiq")}
-                className="bg-black text-white p-3 rounded-lg"
-              >
-                ANALGESIQ
-              </button>
+             <button
+  onClick={() => {
+    if (isPremium) {
+      setVistaActual("analgesiq");
+    }
+  }}
+>
+  ANALGESIQ { !isPremium && "🔒" }
+</button>
             </div>
           </>
         )}
