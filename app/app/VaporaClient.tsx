@@ -692,7 +692,7 @@ export default function VaporaClient({ isPremium, userEmail }: Props) {
   ANALGESIQ { !isPremium && "🔒" }
 </button>
             </div>
-          </>
+          </div>
         )}
 
         {vistaActual === "mac" && <CalcMACFlow onBack={() => setVistaActual("home")} />}
@@ -701,6 +701,6 @@ export default function VaporaClient({ isPremium, userEmail }: Props) {
   <CalcANALGESIQ onBack={() => setVistaActual("home")} />
 )}
       </div>
-    </div>
+    </div>!
   );
 }
