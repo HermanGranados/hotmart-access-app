@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import CalcANALGESIQ from "./CalcANALGESIQ";
 
 function ActivityIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -583,7 +584,9 @@ export default function VaporaClient({ isPremium, userEmail }: Props) {
 
         {vistaActual === "mac" && <CalcMACFlow onBack={() => setVistaActual("home")} />}
         {vistaActual === "locu" && <CalcLOCUDose onBack={() => setVistaActual("home")} />}
-        {vistaActual === "analgesiq" && <div className="mt-4">ANALGESIQ (siguiente paso)</div>}
+        {vistaActual === "analgesiq" && isPremium && (
+  <CalcANALGESIQ onBack={() => setVistaActual("home")} />
+)}
       </div>
     </div>
   );
