@@ -582,13 +582,13 @@ export default function CalcANALGESIQ({ onBack }: Props) {
                       <option value="">Seleccione...</option>
                       {masterMedicamentos
                         .filter((m) => {
-                          if (data.via === "Intravenosa" && !m.iv) return false;
-                          if (data.via === "Epidural" && !m.epi) return false;
-                          if (data.via === "Subcutánea" && !m.sub) return false;
-                          if (data.ofa && m.opioide) return false;
-                          if ((m as any).soloSinOpioides && !data.ofa) return false;
-                          return true;
-                        })
+  if (data.via === "Intravenosa" && !m.iv) return false;
+  if (data.via === "Epidural" && !m.epi) return false;
+  if (data.via === "Subcutánea" && !m.sub) return false;
+  if (data.ofa && "opioide" in m && m.opioide) return false;
+  if ("soloSinOpioides" in m && m.soloSinOpioides && !data.ofa) return false;
+  return true;
+})
                         .sort((a, b) => a.nombre.localeCompare(b.nombre))
                         .map((m) => (
                           <option key={m.nombre} value={m.nombre}>{m.nombre}</option>
