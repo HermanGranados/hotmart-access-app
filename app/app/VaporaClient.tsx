@@ -535,16 +535,22 @@ function CalcLOCUDose({ onBack }: { onBack: () => void }) {
 
 type Props = {
   isPremium: boolean;
+  userEmail: string;
 };
 
-export default function VaporaClient({ isPremium }: Props) {
+export default function VaporaClient({ isPremium, userEmail }: Props) {
   const [vistaActual, setVistaActual] = useState<"home" | "mac" | "locu" | "analgesiq">("home");
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-3xl mx-auto bg-white shadow rounded-xl p-6">
         {vistaActual === "home" && (
-          <>
+          <><p className="text-sm text-center text-gray-500 mb-4">
+  Usuario actual: {userEmail || "sin sesión"}
+</p>
+<p className="text-sm text-center text-gray-500 mb-6">
+  Premium: {isPremium ? "sí" : "no"}
+</p> 
             <h1 className="text-2xl font-bold text-center mb-6">Vapora</h1>
 
             <div className="flex flex-col gap-4">

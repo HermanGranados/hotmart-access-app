@@ -15,5 +15,10 @@ export default async function Page() {
 
   const isPremium = await getUserPremiumStatus(user.email!);
 
-  return <VaporaClient isPremium={isPremium} />;
+  return (
+    <VaporaClient
+      isPremium={isPremium}
+      userEmail={user.email ?? ""}
+    />
+  );
 }
