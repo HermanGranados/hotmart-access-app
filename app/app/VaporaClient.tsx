@@ -1,25 +1,62 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function VaporaClient() {
   const [vistaActual, setVistaActual] = useState("home");
 
   return (
-    <div style={{ padding: 40 }}>
-      <h1>Vapora (Next Version)</h1>
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-3xl mx-auto bg-white shadow rounded-xl p-6">
+        
+        <h1 className="text-2xl font-bold text-center mb-6">
+          Vapora
+        </h1>
 
-      {vistaActual === "home" && (
-        <div style={{ display: "flex", gap: 12, marginTop: 20 }}>
-          <button onClick={() => setVistaActual("calc1")}>MACFlow</button>
-          <button onClick={() => setVistaActual("calc2")}>LOCUDose</button>
-          <button onClick={() => setVistaActual("calc3")}>ANALGESIQ</button>
-        </div>
-      )}
+        {vistaActual === "home" && (
+          <div className="flex flex-col gap-4">
+            <button
+              onClick={() => setVistaActual("mac")}
+              className="bg-black text-white p-3 rounded-lg"
+            >
+              MACFlow
+            </button>
 
-      {vistaActual === "calc1" && <div style={{ marginTop: 20 }}>MACFlow aquí</div>}
-      {vistaActual === "calc2" && <div style={{ marginTop: 20 }}>LOCUDose aquí</div>}
-      {vistaActual === "calc3" && <div style={{ marginTop: 20 }}>ANALGESIQ aquí</div>}
+            <button
+              onClick={() => setVistaActual("locu")}
+              className="bg-black text-white p-3 rounded-lg"
+            >
+              LOCUDose
+            </button>
+
+            <button
+              onClick={() => setVistaActual("analgesiq")}
+              className="bg-black text-white p-3 rounded-lg"
+            >
+              ANALGESIQ
+            </button>
+          </div>
+        )}
+
+        {vistaActual === "mac" && (
+          <div>
+            <p>Calculadora MACFlow (próximo paso)</p>
+          </div>
+        )}
+
+        {vistaActual === "locu" && (
+          <div>
+            <p>Calculadora LOCUDose (próximo paso)</p>
+          </div>
+        )}
+
+        {vistaActual === "analgesiq" && (
+          <div>
+            <p>Calculadora ANALGESIQ (próximo paso)</p>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }
