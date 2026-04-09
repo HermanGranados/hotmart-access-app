@@ -133,7 +133,7 @@ function AppHeader({ onBack }: { onBack: () => void }) {
           <ArrowLeftIcon className="w-6 h-6" />
         </button>
         <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F39169] bg-clip-text text-transparent tracking-wide">
-          VAPORA.app
+          VAPORA
         </h1>
       </div>
     </header>
@@ -627,7 +627,7 @@ export default function VaporaClient({
 
       <div className="absolute left-1/2 -translate-x-1/2">
         <h1 className="text-[17px] font-black tracking-tight text-slate-900">
-          Vapora
+          Vapora.app
         </h1>
       </div>
 
