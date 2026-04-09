@@ -3,7 +3,6 @@ import { createSupabaseServerClient } from "@/lib/supabase-server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log("LOGIN BODY:", body);
 
     const email = String(body?.email ?? "").trim().toLowerCase();
     const password = String(body?.password ?? "");
@@ -14,10 +13,6 @@ export async function POST(req: Request) {
           ok: false,
           step: "validacion-inicial",
           error: "Faltan datos",
-          debug: {
-            emailRecibido: !!email,
-            passwordRecibido: !!password,
-          },
         },
         { status: 400 }
       );
@@ -37,7 +32,7 @@ export async function POST(req: Request) {
         {
           ok: false,
           step: "signInWithPassword",
-          error: error.message || "Correo o contraseña incorrectos",
+          error: error.message,
         },
         { status: 401 }
       );
@@ -47,7 +42,7 @@ export async function POST(req: Request) {
       ok: true,
       step: "fin",
       userId: data?.user?.id ?? null,
-      redirectTo: "https://vapora.academiadeanestesia.com?access=granted",
+      redirectTo: "/app",
     });
   } catch (error) {
     console.error("LOGIN ROUTE ERROR:", error);

@@ -1,4 +1,4 @@
-import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 
 export async function POST(req: Request) {
   try {
@@ -10,8 +10,10 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-const supabaseAdmin = createSupabaseAdminClient();
-    const { error } = await supabaseAdmin.auth.resetPasswordForEmail(
+
+    const supabase = await createSupabaseServerClient();
+
+    const { error } = await supabase.auth.resetPasswordForEmail(
       String(email).trim().toLowerCase(),
       {
         redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/reset-password`,
@@ -29,9 +31,12 @@ const supabaseAdmin = createSupabaseAdminClient();
       ok: true,
       message: "Te enviamos un correo para restablecer tu contraseña.",
     });
-  } catch {
+  } catch (error) {
     return Response.json(
-      { ok: false, error: "Error interno" },
+      {
+        ok: false,
+        error: error instanceof Error ? error.message : "Error interno",
+      },
       { status: 500 }
     );
   }
