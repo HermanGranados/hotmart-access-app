@@ -488,22 +488,38 @@ export default function CalcANALGESIQ({ onBack }: Props) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
-                  {masterMedicamentos.filter((m) => "c1" in m && m.c1).map((m) => (
-                    <label
-                      key={m.nombre}
-                      className={`flex items-center p-4 border-2 rounded-2xl cursor-pointer ${
-                        data.epi.anes === m.nombre ? "bg-[#F9CE6F]/20 border-[#F9CE6F]" : "bg-white border-[#F3EDE9]"
-                      }`}
-                    >
-                      <input
-                        type="radio"
-                        checked={data.epi.anes === m.nombre}
-                        onChange={() => setData({ ...data, epi: { ...data.epi, anes: m.nombre, c1: m.c1 as number } })}
-                        className="w-6 h-6 mr-4"
-                      />
-                      <span className="text-base font-bold">{m.nombre}</span>
-                    </label>
-                  ))}
+                  {masterMedicamentos
+  .filter(
+    (m): m is (typeof masterMedicamentos)[number] & { c1: number } =>
+      "c1" in m && typeof m.c1 === "number"
+  )
+  .map((m) => (
+    <label
+      key={m.nombre}
+      className={`flex items-center p-4 border-2 rounded-2xl cursor-pointer ${
+        data.epi.anes === m.nombre
+          ? "bg-[#F9CE6F]/20 border-[#F9CE6F]"
+          : "bg-white border-[#F3EDE9]"
+      }`}
+    >
+      <input
+        type="radio"
+        checked={data.epi.anes === m.nombre}
+        onChange={() =>
+          setData({
+            ...data,
+            epi: {
+              ...data.epi,
+              anes: m.nombre,
+              c1: m.c1,
+            },
+          })
+        }
+        className="w-6 h-6 mr-4"
+      />
+      <span className="text-base font-bold">{m.nombre}</span>
+    </label>
+  ))}
                 </div>
 
                 <div className="space-y-5">
