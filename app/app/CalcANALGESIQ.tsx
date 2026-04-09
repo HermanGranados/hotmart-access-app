@@ -184,16 +184,21 @@ export default function CalcANALGESIQ({ onBack }: Props) {
     }
 
     active.forEach((f) => {
-      const med = masterMedicamentos.find((m) => m.nombre === f.nombre);
-      const inMg = parseInputToMg(f.dosis, f.nombre);
-      const maxText = med?.max || "";
-      const maxMgMatch = maxText.replace(",", ".").match(/(\d+(\.\d+)?)/);
-      const maxMg = maxMgMatch ? parseInputToMg(maxMgMatch[1] + (maxText.includes("g") ? "g" : "mg"), f.nombre) : null;
+  const med = masterMedicamentos.find((m) => m.nombre === f.nombre);
+  const inMg = parseInputToMg(f.dosis, f.nombre);
+  const maxText = (med as { max?: string } | undefined)?.max || "";
+  const maxMgMatch = maxText.replace(",", ".").match(/(\d+(\.\d+)?)/);
+  const maxMg = maxMgMatch
+    ? parseInputToMg(
+        maxMgMatch[1] + (maxText.includes("g") ? "g" : "mg"),
+        f.nombre
+      )
+    : null;
 
-      if (inMg && maxMg && Number(dias) > 0 && inMg / Number(dias) > maxMg * 1.001) {
-        dA.push(`¡SOBREDOSIS! ${f.nombre} supera el límite seguro de ${maxText}.`);
-      }
-    });
+  if (inMg && maxMg && Number(dias) > 0 && inMg / Number(dias) > maxMg * 1.001) {
+    dA.push(`¡SOBREDOSIS! ${f.nombre} supera el límite seguro de ${maxText}.`);
+  }
+});
 
     setCalc({
       hrs,
