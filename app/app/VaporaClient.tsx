@@ -627,8 +627,35 @@ export default function VaporaClient({
 }: Props) {
   const [vistaActual, setVistaActual] = useState<"home" | "mac" | "locu" | "analgesiq">("home");
   const [showProfile, setShowProfile] = useState(false);
+
+  async function handleLogout() {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.location.href = "/login";
+    } catch {
+      window.location.href = "/login";
+    }
+  }
+
   return (
     <>
+        <div className="fixed top-0 left-0 right-0 z-40 flex justify-center">
+      <div className="w-full max-w-md px-4 pt-4">
+        <div className="flex items-center justify-between rounded-2xl border border-white/40 bg-white/60 px-4 py-3 shadow-[0_10px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+          <h1 className="text-[18px] font-black tracking-tight text-slate-900">
+            Vapora
+          </h1>
+
+          <button
+            onClick={() => setShowProfile(true)}
+            className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/70 shadow-sm ring-1 ring-black/5 backdrop-blur-lg transition hover:bg-white"
+          >
+            <UserIcon className="h-4 w-4 text-slate-700" />
+          </button>
+        </div>
+      </div>
+    </div>
+    
       {vistaActual === "home" && (
         <div className="min-h-screen bg-[#F0EAE6] flex justify-center">
           <div className="w-full max-w-md bg-white min-h-screen sm:border-x border-slate-200">
