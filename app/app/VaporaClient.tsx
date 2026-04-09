@@ -659,9 +659,6 @@ export default function VaporaClient({ isPremium, userEmail }: Props) {
     </div>
   </div>
 )}
-<p className="text-sm text-center text-gray-500 mb-4">
-  Usuario actual: {userEmail || "sin sesión"}
-</p>
 <p className="text-sm text-center text-gray-500 mb-6">
   Premium: {isPremium ? "sí" : "no"}
 </p> 
@@ -692,8 +689,6 @@ export default function VaporaClient({ isPremium, userEmail }: Props) {
   ANALGESIQ { !isPremium && "🔒" }
 </button>
             </div>
-          </div>
-        )}
 
         {vistaActual === "mac" && <CalcMACFlow onBack={() => setVistaActual("home")} />}
         {vistaActual === "locu" && <CalcLOCUDose onBack={() => setVistaActual("home")} />}
