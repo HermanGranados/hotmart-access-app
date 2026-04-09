@@ -183,7 +183,7 @@ export default function LoginPage() {
 
   const title =
     mode === "login"
-      ? "Accede a tu espacio clínico"
+      ? "Accede a tu App Clínica"
       : mode === "first"
       ? "Activa tu acceso"
       : "Recupera tu contraseña";
