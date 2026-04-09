@@ -271,8 +271,8 @@ function CalcMACFlow({ onBack }: { onBack: () => void }) {
               <AlertCircleIcon className="w-6 h-6 text-[#F39169] mr-3 flex-shrink-0 mt-0.5" />
               <p className="text-sm sm:text-base text-slate-700">
                 <strong>Referencia:</strong> Para {anesthetic} suele sugerirse cobro estándar de{" "}
-                <span className="font-semibold bg-white px-2 py-0.5 rounded shadow-sm">{theme.billing}</span>.
-                {" "} (Fórmula: 3 × {numFgf} × {numConc}).
+                <span className="font-semibold bg-white px-2 py-0.5 rounded shadow-sm">{theme.billing}</span>.{" "}
+                (Fórmula: 3 × {numFgf} × {numConc}).
               </p>
             </div>
           </div>
@@ -363,9 +363,7 @@ function CalcLOCUDose({ onBack }: { onBack: () => void }) {
               <button
                 onClick={() => setMode("bomba")}
                 className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-lg transition-all ${
-                  mode === "bomba"
-                    ? "bg-white text-[#F39169] shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                  mode === "bomba" ? "bg-white text-[#F39169] shadow-sm" : "text-slate-500 hover:text-slate-700"
                 }`}
               >
                 Bomba Elastomérica
@@ -373,9 +371,7 @@ function CalcLOCUDose({ onBack }: { onBack: () => void }) {
               <button
                 onClick={() => setMode("regional")}
                 className={`flex-1 py-3 text-sm font-bold uppercase tracking-wider rounded-lg transition-all ${
-                  mode === "regional"
-                    ? "bg-white text-[#F39169] shadow-sm"
-                    : "text-slate-500 hover:text-slate-700"
+                  mode === "regional" ? "bg-white text-[#F39169] shadow-sm" : "text-slate-500 hover:text-slate-700"
                 }`}
               >
                 Anestesia Regional
@@ -501,8 +497,8 @@ function CalcLOCUDose({ onBack }: { onBack: () => void }) {
                           ? reqVol.toFixed(1)
                           : "0.0"
                         : maxVol !== null
-                        ? maxVol.toFixed(1)
-                        : "0.0"}
+                          ? maxVol.toFixed(1)
+                          : "0.0"}
                     </span>
                     <span className="text-[#65C4EB] font-bold text-xl ml-2">ml</span>
                   </>
@@ -543,159 +539,125 @@ export default function VaporaClient({ isPremium, userEmail }: Props) {
   const [vistaActual, setVistaActual] = useState<"home" | "mac" | "locu" | "analgesiq">("home");
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      <div className="max-w-3xl mx-auto bg-white shadow rounded-xl p-6">
-        {vistaActual === "home" && (
-  <div className="min-h-screen bg-[#F0EAE6] flex justify-center">
-    <div className="w-full max-w-md bg-white min-h-screen sm:border-x border-slate-200">
-      <div className="pt-10 pb-6 text-center">
-        <h1 className="text-3xl font-black bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F39169] bg-clip-text text-transparent">
-          VAPORA
-        </h1>
-        <p className="text-sm text-slate-400 font-semibold mt-2">
-          Herramientas clínicas para anestesia
-        </p>
-      </div>
-
-      <div className="px-6 pb-6 text-center">
-        <h2 className="text-xl font-black text-slate-800 leading-tight">
-          Toma decisiones más seguras en quirófano
-        </h2>
-        <p className="text-sm text-slate-500 mt-2">
-          Calculadoras diseñadas para anestesiólogos que quieren rapidez, claridad y seguridad clínica.
-        </p>
-
-        <div className="mt-4 space-y-1">
-          <p className="text-xs text-slate-400">
-            Usuario actual: {userEmail || "sin sesión"}
-          </p>
-          <p className="text-xs text-slate-400">
-            Premium: {isPremium ? "sí" : "no"}
-          </p>
-        </div>
-      </div>
-
-      <div className="px-4 space-y-4 pb-10">
-        <button
-          onClick={() => {
-            if (isPremium) setVistaActual("analgesiq");
-          }}
-          className={`w-full rounded-3xl p-5 text-left border transition-all shadow-sm ${
-            isPremium
-              ? "bg-gradient-to-br from-[#65C4EB]/15 via-[#BDABF5]/15 to-[#F39169]/10 border-[#BDABF5]/30 hover:shadow-md"
-              : "bg-slate-100 border-slate-200 opacity-95"
-          }`}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-xl font-black text-slate-800">ANALGESIQ</h3>
-                <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-[#BDABF5]/15 text-[#BDABF5] border border-[#BDABF5]/30">
-                  Premium
-                </span>
-              </div>
-
-              <p className="text-sm text-slate-600 mt-2 font-medium">
-                Diseña mezclas seguras en segundos
-              </p>
-
-              <p className="text-xs text-slate-500 mt-2 leading-relaxed">
-                Calculadora avanzada para bombas elastoméricas con compatibilidad, dosis y alertas clínicas.
+    <>
+      {vistaActual === "home" && (
+        <div className="min-h-screen bg-[#F0EAE6] flex justify-center">
+          <div className="w-full max-w-md bg-white min-h-screen sm:border-x border-slate-200">
+            <div className="pt-10 pb-6 text-center">
+              <h1 className="text-3xl font-black bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F39169] bg-clip-text text-transparent">
+                VAPORA
+              </h1>
+              <p className="text-sm text-slate-400 font-semibold mt-2">
+                Herramientas clínicas para anestesia
               </p>
             </div>
 
-            <div className="text-2xl">
-              {isPremium ? "👑" : "🔒"}
-            </div>
-          </div>
-
-          {!isPremium && (
-            <div className="mt-4">
-              <p className="text-xs text-slate-500">
-                Desbloquéala con Vapora Premium.
+            <div className="px-6 pb-6 text-center">
+              <h2 className="text-xl font-black text-slate-800 leading-tight">
+                Toma decisiones más seguras en quirófano
+              </h2>
+              <p className="text-sm text-slate-500 mt-2">
+                Calculadoras diseñadas para anestesiólogos que quieren rapidez, claridad y seguridad clínica.
               </p>
+
+              <div className="mt-4 space-y-1">
+                <p className="text-xs text-slate-400">
+                  Usuario actual: {userEmail || "sin sesión"}
+                </p>
+                <p className="text-xs text-slate-400">
+                  Premium: {isPremium ? "sí" : "no"}
+                </p>
+              </div>
             </div>
-          )}
-        </button>
 
-        <div className="pt-2">
-          <p className="text-[11px] uppercase tracking-[0.18em] font-black text-slate-400 px-1 mb-3">
-            Herramientas incluidas
-          </p>
-
-          <div className="space-y-3">
-            <button
-              onClick={() => setVistaActual("mac")}
-              className="w-full p-4 rounded-2xl border border-[#F3EDE9] bg-white shadow-sm hover:shadow-md transition-all text-left"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-base font-black text-slate-800">MACFlow</h4>
-                  <p className="text-sm text-slate-500 mt-1">
-                    Consumo de anestésicos inhalatorios
-                  </p>
-                </div>
-                <span className="text-xl">💨</span>
-              </div>
-            </button>
-
-            <button
-              onClick={() => setVistaActual("locu")}
-              className="w-full p-4 rounded-2xl border border-[#F3EDE9] bg-white shadow-sm hover:shadow-md transition-all text-left"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="text-base font-black text-slate-800">LOCUDose</h4>
-                  <p className="text-sm text-slate-500 mt-1">
-                    Cálculo de anestésicos locales
-                  </p>
-                </div>
-                <span className="text-xl">🧪</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-<p className="text-sm text-center text-gray-500 mb-6">
-  Premium: {isPremium ? "sí" : "no"}
-</p> 
-            <h1 className="text-2xl font-bold text-center mb-6">Vapora</h1>
-
-            <div className="flex flex-col gap-4">
+            <div className="px-4 space-y-4 pb-10">
               <button
-                onClick={() => setVistaActual("mac")}
-                className="bg-black text-white p-3 rounded-lg"
+                onClick={() => {
+                  if (isPremium) setVistaActual("analgesiq");
+                }}
+                className={`w-full rounded-3xl p-5 text-left border transition-all shadow-sm ${
+                  isPremium
+                    ? "bg-gradient-to-br from-[#65C4EB]/15 via-[#BDABF5]/15 to-[#F39169]/10 border-[#BDABF5]/30 hover:shadow-md"
+                    : "bg-slate-100 border-slate-200 opacity-95"
+                }`}
               >
-                MACFlow
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-xl font-black text-slate-800">ANALGESIQ</h3>
+                      <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-full bg-[#BDABF5]/15 text-[#BDABF5] border border-[#BDABF5]/30">
+                        Premium
+                      </span>
+                    </div>
+
+                    <p className="text-sm text-slate-600 mt-2 font-medium">
+                      Diseña mezclas seguras en segundos
+                    </p>
+
+                    <p className="text-xs text-slate-500 mt-2 leading-relaxed">
+                      Calculadora avanzada para bombas elastoméricas con compatibilidad, dosis y alertas clínicas.
+                    </p>
+                  </div>
+
+                  <div className="text-2xl">{isPremium ? "👑" : "🔒"}</div>
+                </div>
+
+                {!isPremium && (
+                  <div className="mt-4">
+                    <p className="text-xs text-slate-500">
+                      Desbloquéala con Vapora Premium.
+                    </p>
+                  </div>
+                )}
               </button>
 
-              <button
-                onClick={() => setVistaActual("locu")}
-                className="bg-black text-white p-3 rounded-lg"
-              >
-                LOCUDose
-              </button>
+              <div className="pt-2">
+                <p className="text-[11px] uppercase tracking-[0.18em] font-black text-slate-400 px-1 mb-3">
+                  Herramientas incluidas
+                </p>
 
-             <button
-  onClick={() => {
-    if (isPremium) {
-      setVistaActual("analgesiq");
-    }
-  }}
->
-  ANALGESIQ { !isPremium && "🔒" }
-</button>
+                <div className="space-y-3">
+                  <button
+                    onClick={() => setVistaActual("mac")}
+                    className="w-full p-4 rounded-2xl border border-[#F3EDE9] bg-white shadow-sm hover:shadow-md transition-all text-left"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-base font-black text-slate-800">MACFlow</h4>
+                        <p className="text-sm text-slate-500 mt-1">
+                          Consumo de anestésicos inhalatorios
+                        </p>
+                      </div>
+                      <span className="text-xl">💨</span>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => setVistaActual("locu")}
+                    className="w-full p-4 rounded-2xl border border-[#F3EDE9] bg-white shadow-sm hover:shadow-md transition-all text-left"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-base font-black text-slate-800">LOCUDose</h4>
+                        <p className="text-sm text-slate-500 mt-1">
+                          Cálculo de anestésicos locales
+                        </p>
+                      </div>
+                      <span className="text-xl">🧪</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
             </div>
+          </div>
+        </div>
+      )}
 
-        {vistaActual === "mac" && <CalcMACFlow onBack={() => setVistaActual("home")} />}
-        {vistaActual === "locu" && <CalcLOCUDose onBack={() => setVistaActual("home")} />}
-        {vistaActual === "analgesiq" && isPremium && (
-  <CalcANALGESIQ onBack={() => setVistaActual("home")} />
-)}
-      </div>
-    </div>!
+      {vistaActual === "mac" && <CalcMACFlow onBack={() => setVistaActual("home")} />}
+      {vistaActual === "locu" && <CalcLOCUDose onBack={() => setVistaActual("home")} />}
+      {vistaActual === "analgesiq" && isPremium && (
+        <CalcANALGESIQ onBack={() => setVistaActual("home")} />
+      )}
+    </>
   );
 }
