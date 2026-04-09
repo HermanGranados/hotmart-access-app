@@ -10,56 +10,86 @@ export default function LoginPage() {
   const [document, setDocument] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleLogin() {
     setMessage("");
+    setLoading(true);
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
+      console.log("LOGIN RESPONSE:", data);
 
-    if (data.ok && data.redirectTo) {
-      window.location.href = data.redirectTo;
-      return;
+      if (data.ok && data.redirectTo) {
+        window.location.href = data.redirectTo;
+        return;
+      }
+
+      setMessage(data.error || "Ocurrió un error");
+    } catch (error) {
+      setMessage("No se pudo conectar con el servidor");
+    } finally {
+      setLoading(false);
     }
-
-    setMessage(data.error || "Ocurrió un error");
   }
 
   async function handleFirstAccess() {
     setMessage("");
+    setLoading(true);
 
-    const res = await fetch("/api/auth/first-access", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, document, password }),
-    });
+    try {
+      const res = await fetch("/api/auth/first-access", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          document: document.trim(),
+          password,
+        }),
+      });
 
-    const data = await res.json();
-    setMessage(data.message || data.error || "Ocurrió un error");
+      const data = await res.json();
+      setMessage(data.message || data.error || "Ocurrió un error");
+    } catch {
+      setMessage("No se pudo conectar con el servidor");
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handleForgotPassword() {
     setMessage("");
+    setLoading(true);
 
-    const res = await fetch("/api/auth/reset-password", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email }),
-    });
+    try {
+      const res = await fetch("/api/auth/reset-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: email.trim() }),
+      });
 
-    const data = await res.json();
-    setMessage(data.message || data.error || "Ocurrió un error");
+      const data = await res.json();
+      setMessage(data.message || data.error || "Ocurrió un error");
+    } catch {
+      setMessage("No se pudo conectar con el servidor");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -67,12 +97,19 @@ export default function LoginPage() {
       <h1>Login Academia de Anestesia</h1>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        <button onClick={() => setMode("login")}>Iniciar sesión</button>
-        <button onClick={() => setMode("first")}>Primer acceso</button>
-        <button onClick={() => setMode("forgot")}>Olvidé mi contraseña</button>
+        <button onClick={() => setMode("login")} disabled={loading}>
+          Iniciar sesión
+        </button>
+        <button onClick={() => setMode("first")} disabled={loading}>
+          Primer acceso
+        </button>
+        <button onClick={() => setMode("forgot")} disabled={loading}>
+          Olvidé mi contraseña
+        </button>
       </div>
 
       <input
+        type="email"
         placeholder="Correo"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
@@ -98,9 +135,23 @@ export default function LoginPage() {
         />
       )}
 
-      {mode === "login" && <button onClick={handleLogin}>Entrar</button>}
-      {mode === "first" && <button onClick={handleFirstAccess}>Validar y crear acceso</button>}
-      {mode === "forgot" && <button onClick={handleForgotPassword}>Enviar recuperación</button>}
+      {mode === "login" && (
+        <button onClick={handleLogin} disabled={loading}>
+          {loading ? "Entrando..." : "Entrar"}
+        </button>
+      )}
+
+      {mode === "first" && (
+        <button onClick={handleFirstAccess} disabled={loading}>
+          {loading ? "Validando..." : "Validar y crear acceso"}
+        </button>
+      )}
+
+      {mode === "forgot" && (
+        <button onClick={handleForgotPassword} disabled={loading}>
+          {loading ? "Enviando..." : "Enviar recuperación"}
+        </button>
+      )}
 
       {message && <p style={{ marginTop: 16 }}>{message}</p>}
     </div>
