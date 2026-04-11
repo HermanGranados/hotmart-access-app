@@ -302,10 +302,8 @@ export default function LoginPage() {
             <strong className="font-semibold text-slate-700">Dr. Herman Granados</strong>{" "}
             — Anestesia Latina
           </p>
-          <p className="text-center text-[12px] text-slate-400">
-            Vapora.app es una aplicación web con fines</p>
-            <p className="text-center text-[12px] text-slate-200">
-              académicos y educativos
+          <p className="text-center text-[12px] text-slate-350">
+            Vapora.app es una aplicación web con fines académicos y educativos
           </p>
         </div>
 
