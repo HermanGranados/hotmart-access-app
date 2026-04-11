@@ -584,10 +584,6 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
                   style={{ color: isPremium ? "#1e1b4b" : "#64748b" }}>
                   ANALGESIQ
                 </div>
-                <div className="text-[14px] font-600 mb-1"
-                  style={{ color: isPremium ? "#4c3d8f" : "#94a3b8" }}>
-                  Diseña mezclas seguras en segundos
-                </div>
                 <div className="text-[12px] leading-relaxed"
                   style={{ color: isPremium ? "#6d5fb5" : "#94a3b8" }}>
                   {isPremium
@@ -617,7 +613,7 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[16px] font-black text-slate-900 mb-0.5">MACFlow</div>
-                      <div className="text-[13px] text-slate-500">Consumo de anestésicos inhalatorios</div>
+                      <div className="text-[13px] text-slate-500">Consumo de Anestésicos Inhalatorios</div>
                     </div>
                     <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
                       <ChevronRightIcon className="w-3.5 h-3.5 text-slate-400" />
@@ -639,7 +635,7 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[16px] font-black text-slate-900 mb-0.5">LOCUDose</div>
-                      <div className="text-[13px] text-slate-500">Cálculo de anestésicos locales</div>
+                      <div className="text-[13px] text-slate-500">Cálculo de Anestésicos Locales</div>
                     </div>
                     <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
                       <ChevronRightIcon className="w-3.5 h-3.5 text-slate-400" />
