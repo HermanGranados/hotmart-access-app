@@ -5,6 +5,12 @@
   --foreground: #171717;
 }
 
+html,
+body {
+  background-color: #eef2f7;
+  overscroll-behavior-y: none;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

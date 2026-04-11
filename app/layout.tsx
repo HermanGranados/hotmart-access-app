@@ -29,10 +29,19 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      style={{ backgroundColor: "#eef2f7" }}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <head>
+        <meta name="theme-color" content="#eef2f7" />
+      </head>
+      <body
+        className="min-h-full flex flex-col"
+        style={{ backgroundColor: "#eef2f7" }}
+      >
+        {children}
+      </body>
     </html>
   );
 }
