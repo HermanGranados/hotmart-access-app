@@ -246,7 +246,7 @@ export default function LoginPage() {
                   : handleForgotPassword
               }
               disabled={loading}
-              className="w-full rounded-2xl py-[16px] text-[17px] font-bold text-white transition disabled:opacity-60"
+              className="w-full rounded-2xl py-[14px] text-[17px] font-bold text-white transition disabled:opacity-60"
               style={{
                 background: "#2D74DA",
                 boxShadow: "0 10px 24px rgba(45,116,218,0.32)",
