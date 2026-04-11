@@ -124,7 +124,7 @@ export default function LoginPage() {
     mode === "login"
       ? "Inicia sesión con tu correo"
       : mode === "first"
-      ? "Activa tu acceso"
+      ? "Activa tu acceso con tu correo electronico y numero de documento con el que hiciste tu compra en Hotmart"
       : "Recupera tu contraseña";
 
   const inputBase =
