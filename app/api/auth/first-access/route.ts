@@ -71,11 +71,13 @@ export async function POST(req: Request) {
     }
 
     // ✅ getUserByEmail en lugar de listUsers() + find()
-    const { data: usersData } = await supabaseAdmin.auth.admin.listUsers({
-  filters: { email: cleanEmail },
-  perPage: 1,
+const { data: usersData } = await supabaseAdmin.auth.admin.listUsers({
+  page: 1,
+  perPage: 1000,
 });
-const existingUser = usersData?.users?.[0] ?? null;
+const existingUser = usersData?.users?.find(
+  (u) => u.email?.toLowerCase() === cleanEmail
+) ?? null;
 
     if (!existingUser) {
       const { error: createUserError } = await supabaseAdmin.auth.admin.createUser({
