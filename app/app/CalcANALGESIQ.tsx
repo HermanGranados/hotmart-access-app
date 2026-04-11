@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-// ── Icons ──────────────────────────────────────────────────────────────────
-
 function SettingsIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -87,37 +85,30 @@ function UserIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-// ── Shared components ──────────────────────────────────────────────────────
+// ── Shared ─────────────────────────────────────────────────────────────────
 
 function AppHeader({ title, onBack, onProfile }: { title: string; onBack: () => void; onProfile?: () => void }) {
   return (
-    <header className="sticky top-0 z-30 w-full bg-white border-b border-slate-100">
+    <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-slate-100">
       <div className="flex items-center gap-2.5 px-3.5 py-2.5">
-        <button
-          onClick={onBack}
-          className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95"
-        >
+        <button onClick={onBack}
+          className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95">
           <ChevronLeftIcon className="w-3.5 h-3.5 text-slate-500" />
         </button>
-
         <div className="flex-1 flex items-center justify-center gap-2">
-          <div
-            className="w-[26px] h-[26px] rounded-[7px] overflow-hidden flex-shrink-0"
-            style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}
-          >
-            <img
-              src="https://academiadeanestesia.com/wp-content/uploads/2026/04/vapora-app-ico-ios.png"
-              alt="Vapora"
-              className="w-full h-full object-cover"
-            />
+          <div className="w-[26px] h-[26px] rounded-[7px] overflow-hidden flex-shrink-0"
+            style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}>
+            <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/vapora-app-ico-ios.png"
+              alt="Vapora" className="w-full h-full object-cover" />
           </div>
-          <span className="text-[15px] font-black text-slate-900 tracking-tight">{title}</span>
+          {/* ✅ Fix #1: fuente más ligera y premium */}
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-[15px] font-semibold text-slate-900 tracking-tight">Vapora</span>
+            <span className="text-[11px] font-light text-slate-400 tracking-wide">· {title}</span>
+          </div>
         </div>
-
-        <button
-          onClick={onProfile}
-          className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95"
-        >
+        <button onClick={onProfile}
+          className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95">
           <UserIcon className="w-3.5 h-3.5 text-slate-500" />
         </button>
       </div>
@@ -194,17 +185,14 @@ function parseInputToMg(text: string | number | null | undefined, medName: strin
 
 type FarmacoState = { nombre: string; vol: number | string; dosis: string; max: string; };
 
-type Props = {
-  onBack: () => void;
-  onProfile?: () => void;
-};
-
-// ── Component ──────────────────────────────────────────────────────────────
+type Props = { onBack: () => void; onProfile?: () => void; };
 
 export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
   const [data, setData] = useState({
     via: "Intravenosa",
     nominal: "240",
+    nominalCustom: "",       // ✅ Fix #2: input manual de volumen nominal
+    useCustomNominal: false,
     flujo: "2",
     ofa: false,
     tipoBomba: "flujo fijo",
@@ -213,6 +201,11 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
     farmacos: Array(5).fill(0).map(() => ({ nombre: "", vol: 0, dosis: "", max: "" })) as FarmacoState[],
     epi: { anes: "Bupivacaína 0.5%", c1: 0.5, c2: "", v2: "240" },
   });
+
+  // Volumen nominal efectivo
+  const nominalEfectivo = data.useCustomNominal && data.nominalCustom
+    ? data.nominalCustom
+    : data.nominal;
 
   const [calc, setCalc] = useState({
     hrs: 0, dias: "0.00", volF: 0, volS: 0, lim: 1, maxVia: 5,
@@ -224,11 +217,16 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
     const activeCount = Math.min(data.cantidadFarmacos || 1, maxVia);
     const active = data.farmacos.slice(0, activeCount);
     const volF = active.reduce((acc, f) => acc + (Number(f.vol) || 0), 0);
-    const hrs = Number(data.flujo) > 0 ? Number(data.nominal) / Number(data.flujo) : 0;
+    const hrs = Number(data.flujo) > 0 ? Number(nominalEfectivo) / Number(data.flujo) : 0;
     const dias = (hrs / 24).toFixed(2);
     const eM: string[] = [], wM: string[] = [], dA: string[] = [];
-    const meds = active.filter((f) => f.nombre);
 
+    // ✅ Fix #3: advertencia PCA
+    if (data.tipoBomba.includes("PCA")) {
+      wM.push("Bomba con PCA activa: verificar dosis de rescate, intervalo de bloqueo y límite de 4 horas antes de programar.");
+    }
+
+    const meds = active.filter((f) => f.nombre);
     for (let i = 0; i < meds.length; i++) {
       for (let j = i + 1; j < meds.length; j++) {
         const m1 = meds[i].nombre.includes("acaína") ? "Bupivacaína" : meds[i].nombre;
@@ -250,8 +248,8 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
       }
     });
 
-    setCalc({ hrs, dias, volF, volS: Math.max(0, Number(data.nominal) - volF), lim: activeCount, maxVia, errors: eM, warns: wM, doseAlerts: dA });
-  }, [data]);
+    setCalc({ hrs, dias, volF, volS: Math.max(0, Number(nominalEfectivo) - volF), lim: activeCount, maxVia, errors: eM, warns: wM, doseAlerts: dA });
+  }, [data, nominalEfectivo]);
 
   function updateF(idx: number, field: "nombre" | "vol" | "dosis" | "max", val: string) {
     const next = [...data.farmacos];
@@ -259,7 +257,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
       const m = masterMedicamentos.find((x) => x.nombre === val);
       if (m) {
         const d = data.via === "Epidural" && "concentracionEpi" in m && m.concentracionEpi
-          ? `${m.concentracionEpi.val * Number(data.nominal)} ${m.concentracionEpi.unit}` : "";
+          ? `${m.concentracionEpi.val * Number(nominalEfectivo)} ${m.concentracionEpi.unit}` : "";
         const v = m.pres ? Math.round(((parseInputToMg(d, val) || 0) / m.pres.mg) * m.pres.ml) : 0;
         next[idx] = { nombre: val, max: (m as any).max || "", dosis: d, vol: v };
       } else {
@@ -318,11 +316,11 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
         <AppHeader title="ANALGESIQ" onBack={onBack} onProfile={onProfile} />
 
         {/* Hero */}
-        <div className="bg-white px-6 pt-8 pb-5 text-center border-b border-slate-100">
-          <div className="h-1.5 w-full bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F39169] mb-6 -mx-6" style={{ width: "calc(100% + 3rem)" }} />
-          <div className="w-16 h-16 mb-4 rounded-[18px] overflow-hidden mx-auto flex items-center justify-center"
+        <div className="bg-white px-6 pt-6 pb-5 text-center border-b border-slate-100 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F39169]" />
+          <div className="w-14 h-14 mb-3 rounded-[16px] overflow-hidden mx-auto flex items-center justify-center mt-2"
             style={{ background: "linear-gradient(160deg,#0f0c29,#1a1040)", boxShadow: "0 4px 16px rgba(129,140,248,0.3)" }}>
-            <img src="https://anestesialatina.com/wp-content/uploads/2026/03/infusion.png" alt="ANALGESIQ" className="w-11 h-11 object-contain" />
+            <img src="https://anestesialatina.com/wp-content/uploads/2026/03/infusion.png" alt="ANALGESIQ" className="w-10 h-10 object-contain" />
           </div>
           <h1 className="text-3xl font-black tracking-wider mb-1">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#65C4EB] to-[#BDABF5]">ANALGES</span>
@@ -348,7 +346,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                 <input type="number" min="0" value={data.edad}
                   onChange={(e) => setData({ ...data, edad: e.target.value })}
                   className="w-full p-3 bg-slate-50 rounded-xl text-base outline-none border border-slate-100"
-                  placeholder="Ej: 68" />
+                  placeholder="Ej: 68" style={{ fontSize: "16px" }} />
               </div>
 
               <div className="space-y-1.5">
@@ -361,33 +359,57 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                     else if (Number(val) <= 14) setData({ ...data, flujo: parseInt(val, 10).toString() });
                   }}
                   placeholder="Máx: 14"
-                  className="w-full p-3 bg-slate-50 rounded-xl text-base outline-none border border-slate-100" />
+                  className="w-full p-3 bg-slate-50 rounded-xl text-base outline-none border border-slate-100"
+                  style={{ fontSize: "16px" }} />
               </div>
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-400 uppercase block">Tipo de Bomba</label>
                 <select value={data.tipoBomba}
                   onChange={(e) => setData({ ...data, tipoBomba: e.target.value })}
-                  className="w-full p-3 bg-slate-50 rounded-xl text-base outline-none border border-slate-100">
+                  className="w-full p-3 bg-slate-50 rounded-xl text-base outline-none border border-slate-100"
+                  style={{ fontSize: "16px" }}>
                   {["flujo fijo", "flujo fijo + PCA", "flujo múltiple", "flujo múltiple + PCA"].map((t) => (
                     <option key={t} value={t}>{t.toUpperCase()}</option>
                   ))}
                 </select>
               </div>
 
+              {/* ✅ Fix #2: Volumen nominal con botones + input manual */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-400 uppercase block">Volumen Nominal (mL)</label>
                 <div className="flex gap-2">
                   {["100", "240", "275"].map((v) => (
                     <button key={v}
-                      onClick={() => setData({ ...data, nominal: v, epi: { ...data.epi, v2: v } })}
+                      onClick={() => setData({ ...data, nominal: v, useCustomNominal: false, epi: { ...data.epi, v2: v } })}
                       className={`flex-1 py-3 rounded-xl text-sm font-black transition-all ${
-                        data.nominal === String(v) ? "bg-[#65C4EB] text-slate-900 shadow-md" : "bg-slate-100 text-slate-500"
+                        !data.useCustomNominal && data.nominal === v
+                          ? "bg-[#65C4EB] text-slate-900 shadow-md"
+                          : "bg-slate-100 text-slate-500"
                       }`}>
                       {v}
                     </button>
                   ))}
+                  <button
+                    onClick={() => setData({ ...data, useCustomNominal: true })}
+                    className={`flex-1 py-3 rounded-xl text-sm font-black transition-all ${
+                      data.useCustomNominal ? "bg-[#BDABF5] text-white shadow-md" : "bg-slate-100 text-slate-500"
+                    }`}>
+                    Otro
+                  </button>
                 </div>
+                {data.useCustomNominal && (
+                  <input
+                    type="number"
+                    min="1"
+                    placeholder="Ej: 150"
+                    value={data.nominalCustom}
+                    onChange={(e) => setData({ ...data, nominalCustom: e.target.value, epi: { ...data.epi, v2: e.target.value } })}
+                    className="w-full p-3 bg-[#BDABF5]/10 rounded-xl text-base outline-none border border-[#BDABF5]/30 font-bold text-slate-800"
+                    style={{ fontSize: "16px" }}
+                    autoFocus
+                  />
+                )}
               </div>
 
               <div className="space-y-1.5">
@@ -399,7 +421,8 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                     cantidadFarmacos: Math.min(data.cantidadFarmacos || 1, 5),
                     farmacos: Array(5).fill(0).map(() => ({ nombre: "", vol: 0, dosis: "", max: "" })),
                   })}
-                  className="w-full p-3 bg-slate-50 rounded-xl text-base outline-none border border-slate-100">
+                  className="w-full p-3 bg-slate-50 rounded-xl text-base outline-none border border-slate-100"
+                  style={{ fontSize: "16px" }}>
                   {["Intravenosa", "Epidural", "Subcutánea"].map((v) => (
                     <option key={v} value={v}>{v}</option>
                   ))}
@@ -410,7 +433,8 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                 <label className="text-xs font-bold text-slate-400 uppercase block">Cantidad de Fármacos</label>
                 <select value={data.cantidadFarmacos}
                   onChange={(e) => setData({ ...data, cantidadFarmacos: Number(e.target.value) })}
-                  className="w-full p-3 bg-slate-50 rounded-xl text-base outline-none border border-slate-100">
+                  className="w-full p-3 bg-slate-50 rounded-xl text-base outline-none border border-slate-100"
+                  style={{ fontSize: "16px" }}>
                   {Array.from({ length: 5 }, (_, i) => i + 1).map((num) => (
                     <option key={num} value={num}>{num} {num === 1 ? "Fármaco" : "Fármacos"}</option>
                   ))}
@@ -427,11 +451,12 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
               )}
             </div>
 
+            {/* Alertas de parámetros */}
             {data.ofa && data.via === "Intravenosa" && (
               <div className="bg-emerald-50 p-4 rounded-2xl flex items-start gap-3 border border-emerald-200">
                 <AlertTriangleIcon className="w-6 h-6 text-emerald-500 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-sm font-black uppercase text-emerald-800 tracking-wide">Esquema Libre de Opioides (OFA)</p>
+                  <p className="text-sm font-black uppercase text-emerald-800">Esquema Libre de Opioides (OFA)</p>
                   <p className="text-sm font-bold text-emerald-700 leading-tight mt-1">
                     Fentanilo, Morfina, Meperidina y Tramadol no disponibles.
                   </p>
@@ -443,9 +468,22 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
               <div className="bg-amber-50 p-4 rounded-2xl flex items-start gap-3 border border-amber-200">
                 <AlertTriangleIcon className="w-6 h-6 text-amber-500 mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-sm font-black uppercase text-amber-800 tracking-wide">Paciente Adulto Mayor</p>
+                  <p className="text-sm font-black uppercase text-amber-800">Paciente Adulto Mayor</p>
                   <p className="text-sm font-bold text-amber-700 leading-tight mt-1">
-                    Considerar reducción empírica de dosis entre <span className="font-black text-amber-900">30% y 50%</span>.
+                    Considerar reducción de dosis entre <strong>30% y 50%</strong>.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* ✅ Fix #3: Alerta PCA visible aquí también */}
+            {data.tipoBomba.includes("PCA") && (
+              <div className="bg-blue-50 p-4 rounded-2xl flex items-start gap-3 border border-blue-200">
+                <AlertTriangleIcon className="w-6 h-6 text-blue-500 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-black uppercase text-blue-800">Bomba con PCA activa</p>
+                  <p className="text-sm font-bold text-blue-700 leading-tight mt-1">
+                    Verificar dosis de rescate, intervalo de bloqueo y límite de 4 horas antes de programar.
                   </p>
                 </div>
               </div>
@@ -454,7 +492,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
             <div className="bg-[#65C4EB]/10 p-4 rounded-2xl flex items-start gap-3">
               <ClockIcon className="w-7 h-7 text-[#65C4EB] mt-0.5 shrink-0" />
               <div>
-                <p className="text-[11px] font-black uppercase text-slate-500">Duración Estimada de la Bomba:</p>
+                <p className="text-[11px] font-black uppercase text-slate-500">Duración Estimada:</p>
                 <p className="text-2xl font-black text-[#65C4EB] leading-tight">
                   {calc.dias} Días ≈ {Math.round(calc.hrs)} horas
                 </p>
@@ -465,9 +503,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
           {/* Epidural */}
           {data.via === "Epidural" && (
             <section className="bg-white p-5 rounded-[2rem] border border-slate-100 space-y-5 shadow-sm">
-              <div className="flex items-center gap-2 font-black text-[#F39169] text-sm uppercase">
-                Concentración epidural
-              </div>
+              <div className="font-black text-[#F39169] text-sm uppercase">Concentración epidural</div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-3">
                   {masterMedicamentos
@@ -485,14 +521,14 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                     ))}
                 </div>
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-xs font-black text-[#F39169] uppercase tracking-wider block">CONC. FINAL DESEADA (C₂ %)</label>
+                  <div>
+                    <label className="text-xs font-black text-[#F39169] uppercase tracking-wider block mb-1">CONC. FINAL (C₂ %)</label>
                     <input type="number" step="0.001" value={data.epi.c2}
                       onChange={(e) => setData({ ...data, epi: { ...data.epi, c2: e.target.value } })}
                       className="w-full p-3 bg-white border border-slate-100 rounded-xl text-xl font-black text-slate-800 outline-none"
-                      placeholder="0.125" />
+                      style={{ fontSize: "16px" }} placeholder="0.125" />
                   </div>
-                  <div className="bg-[#F39169] px-4 py-6 rounded-[1.5rem] text-white shadow-lg text-center">
+                  <div className="bg-[#F39169] px-4 py-5 rounded-[1.5rem] text-white text-center">
                     <p className="text-xs font-black uppercase tracking-widest mb-1 opacity-90">VOLUMEN REQUERIDO (V₁)</p>
                     <div className="flex items-baseline justify-center gap-2 mb-4">
                       <span className="text-5xl font-black">
@@ -502,7 +538,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                       <span className="text-2xl font-bold opacity-90">mL</span>
                     </div>
                     <button onClick={applyEpi}
-                      className="w-full bg-white text-[#F39169] font-black text-sm py-3 rounded-xl uppercase tracking-wider">
+                      className="w-full bg-white text-[#F39169] font-black text-sm py-3 rounded-xl uppercase">
                       APLICAR A MEZCLA
                     </button>
                   </div>
@@ -513,7 +549,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
 
           {/* Fármacos */}
           <section className="bg-white p-4 sm:p-5 rounded-[2rem] border border-slate-100 space-y-5 shadow-sm">
-            <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2 font-black text-[#BDABF5] text-sm uppercase">
                 <BeakerIcon className="w-5 h-5" />
                 Fármacos
@@ -531,7 +567,8 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                   <div>
                     <label className="text-xs font-black text-[#BDABF5] uppercase mb-1.5 block">Fármaco {i + 1}</label>
                     <select value={f.nombre} onChange={(e) => updateF(i, "nombre", e.target.value)}
-                      className="w-full p-2.5 h-11 bg-slate-50 rounded-xl text-sm font-bold outline-none border border-slate-100">
+                      className="w-full p-2.5 h-11 bg-slate-50 rounded-xl font-bold outline-none border border-slate-100"
+                      style={{ fontSize: "16px" }}>
                       <option value="">Seleccione...</option>
                       {masterMedicamentos
                         .filter((m) => {
@@ -546,22 +583,28 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                         .map((m) => <option key={m.nombre} value={m.nombre}>{m.nombre}</option>)}
                     </select>
                   </div>
+
+                  {/* ✅ Fix #4 & #5: font-size 16px en inputs, texto centrado */}
                   <div>
-                    <label className="text-xs font-black text-slate-400 uppercase block mb-1.5">Dosis Total Infusión</label>
+                    <label className="text-xs font-black text-slate-400 uppercase block mb-1.5 text-center">Dosis Total Infusión</label>
                     <input type="text" value={f.dosis} onChange={(e) => updateF(i, "dosis", e.target.value)}
-                      className="w-full p-2.5 h-11 bg-[#BDABF5]/5 rounded-xl text-sm font-black border border-slate-100 outline-none"
+                      className="w-full p-2.5 h-11 bg-[#BDABF5]/5 rounded-xl font-black border border-slate-100 outline-none text-center"
+                      style={{ fontSize: "16px" }}
                       placeholder="Ej: 120 mg" />
                   </div>
+
                   <div>
-                    <label className="text-xs font-black text-slate-400 uppercase block mb-1.5">Máx Día</label>
-                    <div className="h-11 flex items-center justify-center text-xs bg-slate-50 rounded-xl font-black text-slate-500 uppercase border border-slate-100">
+                    <label className="text-xs font-black text-slate-400 uppercase block mb-1.5 text-center">Máx Día</label>
+                    <div className="h-11 flex items-center justify-center text-sm bg-slate-50 rounded-xl font-black text-slate-500 uppercase border border-slate-100">
                       {f.max || "---"}
                     </div>
                   </div>
+
                   <div>
-                    <label className="text-xs font-black text-slate-400 uppercase block mb-1.5">Vol (mL)</label>
+                    <label className="text-xs font-black text-slate-400 uppercase block mb-1.5 text-center">Vol (mL)</label>
                     <input type="number" value={f.vol || ""} onChange={(e) => updateF(i, "vol", e.target.value)}
-                      className="w-full h-11 p-2.5 bg-white rounded-xl text-sm font-black border border-slate-100 outline-none" />
+                      className="w-full h-11 p-2.5 bg-white rounded-xl font-black border border-slate-100 outline-none text-center"
+                      style={{ fontSize: "16px" }} />
                   </div>
                 </div>
               ))}
@@ -576,18 +619,18 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                 ))}
                 {calc.errors.map((e, i) => (
                   <div key={i} className="p-3 bg-[#F39169]/10 text-[#F39169] text-xs font-black border border-[#F39169]/30 rounded-xl flex items-center gap-3">
-                    <XCircleIcon className="w-5 h-5 shrink-0 text-[#F39169]" />{e}
+                    <XCircleIcon className="w-5 h-5 shrink-0" />{e}
                   </div>
                 ))}
                 {calc.doseAlerts.map((a, i) => (
                   <div key={i} className="p-3 bg-[#F39169]/20 text-[#F39169] text-xs font-black border border-[#F39169]/50 rounded-xl flex items-center gap-3">
-                    <AlertTriangleIcon className="w-5 h-5 shrink-0 text-[#F39169]" />{a}
+                    <AlertTriangleIcon className="w-5 h-5 shrink-0" />{a}
                   </div>
                 ))}
               </div>
             )}
 
-            <div className="bg-[#BDABF5] p-5 rounded-2xl text-white shadow-xl flex justify-between items-center mt-4">
+            <div className="bg-[#BDABF5] p-5 rounded-2xl text-white flex justify-between items-center mt-4">
               <span className="text-sm font-black uppercase opacity-90 tracking-widest">Volumen Fármacos</span>
               <span className="text-3xl font-black">{calc.volF} mL</span>
             </div>
@@ -604,7 +647,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                   </div>
                   <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                     <div className="text-center md:text-left">
-                      <p className="text-xs text-slate-500 uppercase font-black mb-1">Volumen para completar infusión</p>
+                      <p className="text-xs text-slate-500 uppercase font-black mb-1">Volumen para completar</p>
                       <div className="flex items-baseline justify-center md:justify-start gap-2">
                         <span className="text-7xl font-black text-[#65C4EB]">{calc.volS}</span>
                         <span className="text-3xl font-bold text-[#65C4EB]">mL</span>
@@ -624,17 +667,16 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                 <XCircleIcon className="w-14 h-14 text-[#F39169] mx-auto mb-4" />
                 <h3 className="text-[#F39169] font-black text-xl uppercase mb-2">Mezcla No Permitida</h3>
                 <p className="text-sm text-slate-600 font-bold px-4 leading-relaxed">
-                  Por seguridad, corrige las alertas críticas indicadas para desbloquear el cálculo final de carga.
+                  Corrige las alertas críticas para desbloquear el cálculo.
                 </p>
               </div>
             )}
           </section>
 
-          {/* Aviso legal */}
-          <div className="bg-slate-50 p-6 rounded-2xl text-xs text-center text-slate-500 leading-relaxed border border-slate-100">
+          <div className="bg-slate-50 p-5 rounded-2xl text-xs text-center text-slate-500 leading-relaxed border border-slate-100">
             <p className="font-black uppercase mb-2 text-slate-600 tracking-widest">Aviso Médico Legal</p>
             <p className="font-medium">
-              Esta aplicación es una herramienta de apoyo académico diseñada exclusivamente para el <strong>Curso Taller de Bombas Elastoméricas</strong> y no sustituye el criterio clínico profesional. Los cálculos generados son referenciales y no constituyen protocolos de prescripción.
+              Herramienta de apoyo académico para el <strong>Curso Taller de Bombas Elastoméricas</strong>. No sustituye el criterio clínico. Los cálculos son referenciales.
             </p>
           </div>
         </div>

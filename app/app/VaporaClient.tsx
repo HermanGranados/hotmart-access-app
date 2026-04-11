@@ -111,6 +111,8 @@ function XIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+// ── Shared components ──────────────────────────────────────────────────────
+
 function PageFooter() {
   return (
     <div className="flex flex-col items-center gap-[6px] py-8 px-4">
@@ -126,33 +128,28 @@ function PageFooter() {
   );
 }
 
-// ── Header Home ──
+// ✅ Fix #1: Header home con ícono + nombre premium ligero
 function HomeHeader({ onProfile }: { onProfile: () => void }) {
   return (
-    <header className="sticky top-0 z-30 w-full bg-white border-b border-slate-100">
-      <div className="flex items-center justify-between gap-3 px-5 py-4">
+    <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-slate-100">
+      <div className="flex items-center justify-between gap-3 px-5 py-3.5">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-[12px] overflow-hidden flex-shrink-0"
+          <div className="w-10 h-10 rounded-[11px] overflow-hidden flex-shrink-0"
             style={{ boxShadow: "0 2px 8px rgba(0,0,0,0.12)" }}>
-            <img
-              src="https://academiadeanestesia.com/wp-content/uploads/2026/04/vapora-app-ico-ios.png"
-              alt="Vapora"
-              className="w-full h-full object-cover"
-            />
+            <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/vapora-app-ico-ios.png"
+              alt="Vapora" className="w-full h-full object-cover" />
           </div>
           <div>
-            <div className="text-[18px] font-black text-slate-900 leading-tight tracking-tight">
-              Vapora.app
+            <div className="text-[17px] font-semibold text-slate-900 leading-tight tracking-tight">
+              Vapora<span className="font-light text-slate-400">.app</span>
             </div>
-            <div className="text-[11px] text-slate-400 font-medium mt-0.5">
+            <div className="text-[11px] text-slate-400 font-light tracking-wide mt-0.5">
               Calculadoras para tu día a día en Anestesia
             </div>
           </div>
         </div>
-        <button
-          onClick={onProfile}
-          className="w-9 h-9 rounded-full bg-slate-100 border border-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95"
-        >
+        <button onClick={onProfile}
+          className="w-8 h-8 rounded-full bg-slate-100 border border-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95">
           <UserIcon className="w-4 h-4 text-slate-500" />
         </button>
       </div>
@@ -160,40 +157,36 @@ function HomeHeader({ onProfile }: { onProfile: () => void }) {
   );
 }
 
-// ── Header Apps internas ──
+// ✅ Fix #1: Header interno con mismo estilo premium
 function AppHeader({ title, onBack, onProfile }: { title: string; onBack: () => void; onProfile: () => void }) {
   return (
-    <header className="sticky top-0 z-30 w-full bg-white border-b border-slate-100">
+    <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-slate-100">
       <div className="flex items-center gap-2.5 px-3.5 py-2.5">
-        <button
-          onClick={onBack}
-          className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95"
-        >
+        <button onClick={onBack}
+          className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95">
           <ChevronLeftIcon className="w-3.5 h-3.5 text-slate-500" />
         </button>
-
         <div className="flex-1 flex items-center justify-center gap-2">
           <div className="w-[26px] h-[26px] rounded-[7px] overflow-hidden flex-shrink-0"
             style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.12)" }}>
-            <img
-              src="https://academiadeanestesia.com/wp-content/uploads/2026/04/vapora-app-ico-ios.png"
-              alt="Vapora"
-              className="w-full h-full object-cover"
-            />
+            <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/vapora-app-ico-ios.png"
+              alt="Vapora" className="w-full h-full object-cover" />
           </div>
-          <span className="text-[15px] font-black text-slate-900 tracking-tight">{title}</span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-[15px] font-semibold text-slate-900 tracking-tight">Vapora</span>
+            <span className="text-[11px] font-light text-slate-400 tracking-wide">· {title}</span>
+          </div>
         </div>
-
-        <button
-          onClick={onProfile}
-          className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95"
-        >
+        <button onClick={onProfile}
+          className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95">
           <UserIcon className="w-3.5 h-3.5 text-slate-500" />
         </button>
       </div>
     </header>
   );
 }
+
+// ── Calculadoras ───────────────────────────────────────────────────────────
 
 function CalcMACFlow({ onBack, onProfile }: { onBack: () => void; onProfile: () => void }) {
   const [anesthetic, setAnesthetic] = useState<"Sevoflurano" | "Desflurano">("Sevoflurano");
@@ -224,7 +217,6 @@ function CalcMACFlow({ onBack, onProfile }: { onBack: () => void; onProfile: () 
         <AppHeader title="MACFlow" onBack={onBack} onProfile={onProfile} />
         <main className="flex-1 flex flex-col w-full pb-12">
           <div className="h-1.5 w-full bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F39169]" />
-
           <div className="pt-8 pb-4 px-5 text-center flex flex-col items-center border-b border-slate-100">
             <div className="w-16 h-16 mb-4 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50 to-sky-100 flex items-center justify-center">
               <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/anesthesia.png" alt="MACFlow" className="w-11 h-11 object-contain" />
@@ -262,7 +254,8 @@ function CalcMACFlow({ onBack, onProfile }: { onBack: () => void; onProfile: () 
                     style={{ accentColor: theme.accent }} />
                   <input type="number" step="0.1" min="0" value={fgf}
                     onChange={(e) => setFgf(e.target.value)}
-                    className={`w-20 text-center border-b-2 ${theme.border} focus:outline-none font-bold text-xl p-1 text-slate-800`} />
+                    className={`w-20 text-center border-b-2 ${theme.border} focus:outline-none font-bold p-1 text-slate-800`}
+                    style={{ fontSize: "16px" }} />
                 </div>
               </div>
               <div>
@@ -277,7 +270,8 @@ function CalcMACFlow({ onBack, onProfile }: { onBack: () => void; onProfile: () 
                     style={{ accentColor: theme.accent }} />
                   <input type="number" step="0.1" min="0" value={conc}
                     onChange={(e) => setConc(e.target.value)}
-                    className={`w-20 text-center border-b-2 ${theme.border} focus:outline-none font-bold text-xl p-1 text-slate-800`} />
+                    className={`w-20 text-center border-b-2 ${theme.border} focus:outline-none font-bold p-1 text-slate-800`}
+                    style={{ fontSize: "16px" }} />
                 </div>
               </div>
               <div>
@@ -292,7 +286,8 @@ function CalcMACFlow({ onBack, onProfile }: { onBack: () => void; onProfile: () 
                     style={{ accentColor: theme.accent }} />
                   <input type="number" step="0.1" min="0" value={dur}
                     onChange={(e) => setDur(e.target.value)}
-                    className={`w-20 text-center border-b-2 ${theme.border} focus:outline-none font-bold text-xl p-1 text-slate-800`} />
+                    className={`w-20 text-center border-b-2 ${theme.border} focus:outline-none font-bold p-1 text-slate-800`}
+                    style={{ fontSize: "16px" }} />
                 </div>
               </div>
             </div>
@@ -385,7 +380,6 @@ function CalcLOCUDose({ onBack, onProfile }: { onBack: () => void; onProfile: ()
         <AppHeader title="LOCUDose" onBack={onBack} onProfile={onProfile} />
         <main className="flex-1 flex flex-col w-full pb-12">
           <div className="h-1.5 w-full bg-gradient-to-r from-[#65C4EB] via-[#BDABF5] to-[#F9CE6F]" />
-
           <div className="pt-8 pb-6 px-6 border-b border-slate-100 text-center flex flex-col items-center">
             <div className="w-16 h-16 mb-4 rounded-2xl overflow-hidden bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center">
               <img src="https://academiadeanestesia.com/wp-content/uploads/2026/03/calculator.png" alt="LOCUDose" className="w-11 h-11 object-contain" />
@@ -431,7 +425,8 @@ function CalcLOCUDose({ onBack, onProfile }: { onBack: () => void; onProfile: ()
                     <span className="absolute left-4 text-[#BDABF5] font-bold">%</span>
                     <input type="number" step="0.001" min="0" placeholder="Ej. 0.125" value={finalConc}
                       onChange={(e) => setFinalConc(e.target.value)}
-                      className="w-full py-4 pl-10 pr-4 text-slate-800 text-sm font-medium border border-slate-100 rounded-xl focus:border-[#65C4EB] focus:outline-none transition-all" />
+                      className="w-full py-4 pl-10 pr-4 text-slate-800 font-medium border border-slate-100 rounded-xl focus:border-[#65C4EB] focus:outline-none transition-all"
+                      style={{ fontSize: "16px" }} />
                   </div>
                 </div>
                 <div>
@@ -440,7 +435,8 @@ function CalcLOCUDose({ onBack, onProfile }: { onBack: () => void; onProfile: ()
                     <span className="absolute left-4 text-[#BDABF5] font-bold">ml</span>
                     <input type="number" step="0.1" min="0" placeholder="Ej. 100" value={finalVol}
                       onChange={(e) => setFinalVol(e.target.value)}
-                      className="w-full py-4 pl-12 pr-4 text-slate-800 text-sm font-medium border border-slate-100 rounded-xl focus:border-[#65C4EB] focus:outline-none transition-all" />
+                      className="w-full py-4 pl-12 pr-4 text-slate-800 font-medium border border-slate-100 rounded-xl focus:border-[#65C4EB] focus:outline-none transition-all"
+                      style={{ fontSize: "16px" }} />
                   </div>
                 </div>
               </div>
@@ -454,7 +450,8 @@ function CalcLOCUDose({ onBack, onProfile }: { onBack: () => void; onProfile: ()
                     <span className="absolute left-4 text-[#BDABF5] font-bold">kg</span>
                     <input type="number" step="1" min="1" placeholder="Ej. 70" value={weight}
                       onChange={(e) => setWeight(e.target.value.replace(/[^0-9]/g, ""))}
-                      className="w-full py-4 pl-14 pr-4 text-slate-800 text-sm font-medium border border-slate-100 rounded-xl focus:border-[#65C4EB] focus:outline-none transition-all" />
+                      className="w-full py-4 pl-14 pr-4 text-slate-800 font-medium border border-slate-100 rounded-xl focus:border-[#65C4EB] focus:outline-none transition-all"
+                      style={{ fontSize: "16px" }} />
                   </div>
                 </div>
                 <div>
@@ -535,78 +532,53 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
 
   return (
     <>
-      {/* Home */}
       {vistaActual === "home" && (
         <div className="min-h-screen bg-white">
           <div className="max-w-md mx-auto bg-white min-h-screen sm:border-x border-slate-100">
             <HomeHeader onProfile={() => setShowProfile(true)} />
 
             <div className="px-4 pt-6 pb-4 space-y-6">
-              {/* Herramientas Premium */}
               <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-4">
                   Herramientas Premium
                 </p>
-                <div
-                  className="rounded-[28px] p-[1.5px]"
-                  style={{
-                    background: "linear-gradient(135deg,#c084fc,#818cf8,#38bdf8,#a78bfa)",
-                    boxShadow: "0 12px 40px rgba(129,140,248,0.28)",
-                  }}
-                >
-                  <div
-                    className="rounded-[27px] p-6 relative overflow-hidden"
-                    style={{ background: "linear-gradient(160deg,#0f0c29,#1a1040,#0d1b3e)" }}
-                  >
+                <div className="rounded-[28px] p-[1.5px]"
+                  style={{ background: "linear-gradient(135deg,#c084fc,#818cf8,#38bdf8,#a78bfa)", boxShadow: "0 12px 40px rgba(129,140,248,0.28)" }}>
+                  <div className="rounded-[27px] p-6 relative overflow-hidden"
+                    style={{ background: "linear-gradient(160deg,#0f0c29,#1a1040,#0d1b3e)" }}>
                     <div className="absolute top-[-50px] right-[-50px] w-[200px] h-[200px] rounded-full pointer-events-none"
                       style={{ background: "radial-gradient(circle,rgba(167,139,250,0.22),transparent 70%)" }} />
                     <div className="absolute bottom-[-40px] left-[-30px] w-[160px] h-[160px] rounded-full pointer-events-none"
                       style={{ background: "radial-gradient(circle,rgba(56,189,248,0.14),transparent 70%)" }} />
-
                     <div className="relative z-10 flex items-center justify-between gap-3 mb-4">
                       <div className="w-16 h-16 rounded-[18px] flex items-center justify-center overflow-hidden flex-shrink-0"
                         style={{ background: "rgba(255,255,255,0.1)", border: "0.5px solid rgba(255,255,255,0.2)" }}>
-                        <img src="https://anestesialatina.com/wp-content/uploads/2026/03/infusion.png"
-                          alt="ANALGESIQ" className="w-11 h-11 object-contain" />
+                        <img src="https://anestesialatina.com/wp-content/uploads/2026/03/infusion.png" alt="ANALGESIQ" className="w-11 h-11 object-contain" />
                       </div>
                       <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full"
-                        style={{
-                          background: "linear-gradient(135deg,rgba(192,132,252,0.3),rgba(129,140,248,0.3))",
-                          border: "0.5px solid rgba(192,132,252,0.5)",
-                          color: "#e9d5ff",
-                        }}>
+                        style={{ background: "linear-gradient(135deg,rgba(192,132,252,0.3),rgba(129,140,248,0.3))", border: "0.5px solid rgba(192,132,252,0.5)", color: "#e9d5ff" }}>
                         ✦ Premium
                       </span>
                     </div>
-
                     <div className="relative z-10 text-[30px] font-black tracking-tight mb-5"
-                      style={{
-                        background: "linear-gradient(135deg,#e9d5ff,#c4b5fd,#93c5fd)",
-                        WebkitBackgroundClip: "text",
-                        WebkitTextFillColor: "transparent",
-                      }}>
+                      style={{ background: "linear-gradient(135deg,#e9d5ff,#c4b5fd,#93c5fd)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                       ANALGESIQ
                     </div>
-
-                    <p className="relative z-10 text-[13px] leading-relaxed mb-6"
-                      style={{ color: "rgba(255,255,255,0.5)" }}>
+                    <p className="relative z-10 text-[13px] leading-relaxed mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>
                       Calculadora avanzada para bombas elastoméricas con compatibilidad, dosis y alertas clínicas.
                     </p>
-
                     <button
                       onClick={() => { if (isPremium) setVistaActual("analgesiq"); }}
                       className="relative z-10 w-full rounded-[14px] py-[14px] text-[14px] font-bold text-white transition-all"
                       style={{ background: "rgba(167,139,250,0.25)", border: "0.5px solid rgba(167,139,250,0.4)" }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "linear-gradient(135deg,#a78bfa,#818cf8)"; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(167,139,250,0.25)"; }}
-                    >
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(167,139,250,0.25)"; }}>
                       {isPremium ? "Abrir ANALGESIQ →" : "🔒 Requiere membresía Premium"}
                     </button>
                   </div>
                 </div>
               </div>
 
-              {/* Herramientas incluidas */}
               <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-4">
                   Herramientas incluidas
@@ -616,8 +588,7 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
                     className="w-full bg-white rounded-[20px] border border-slate-100 p-4 flex items-center gap-4 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99]">
                     <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0"
                       style={{ background: "linear-gradient(135deg,#e0f2fe,#bae6fd)" }}>
-                      <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/anesthesia.png"
-                        alt="MACFlow" className="w-10 h-10 object-contain" />
+                      <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/anesthesia.png" alt="MACFlow" className="w-10 h-10 object-contain" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[16px] font-black text-slate-900 mb-0.5">MACFlow</div>
@@ -632,8 +603,7 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
                     className="w-full bg-white rounded-[20px] border border-slate-100 p-4 flex items-center gap-4 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99]">
                     <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0"
                       style={{ background: "linear-gradient(135deg,#f0fdf4,#dcfce7)" }}>
-                      <img src="https://academiadeanestesia.com/wp-content/uploads/2026/03/calculator.png"
-                        alt="LOCUDose" className="w-10 h-10 object-contain" />
+                      <img src="https://academiadeanestesia.com/wp-content/uploads/2026/03/calculator.png" alt="LOCUDose" className="w-10 h-10 object-contain" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-[16px] font-black text-slate-900 mb-0.5">LOCUDose</div>
@@ -652,14 +622,10 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
         </div>
       )}
 
-      {vistaActual === "mac" && (
-        <CalcMACFlow onBack={() => setVistaActual("home")} onProfile={() => setShowProfile(true)} />
-      )}
-      {vistaActual === "locu" && (
-        <CalcLOCUDose onBack={() => setVistaActual("home")} onProfile={() => setShowProfile(true)} />
-      )}
+      {vistaActual === "mac" && <CalcMACFlow onBack={() => setVistaActual("home")} onProfile={() => setShowProfile(true)} />}
+      {vistaActual === "locu" && <CalcLOCUDose onBack={() => setVistaActual("home")} onProfile={() => setShowProfile(true)} />}
       {vistaActual === "analgesiq" && isPremium && (
-        <CalcANALGESIQ onBack={() => setVistaActual("home")} />
+        <CalcANALGESIQ onBack={() => setVistaActual("home")} onProfile={() => setShowProfile(true)} />
       )}
 
       {/* Panel de perfil */}
@@ -713,17 +679,13 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
               </div>
 
               <div className="mt-6 space-y-3">
-                <button
-                  onClick={() => { setShowProfile(false); window.location.href = "/reset-password"; }}
-                  className="flex w-full items-center gap-3 rounded-2xl bg-white/70 px-4 py-4 text-left text-[15px] font-bold text-slate-900 shadow-sm ring-1 ring-white/60 backdrop-blur-xl transition hover:bg-white"
-                >
+                <button onClick={() => { setShowProfile(false); window.location.href = "/reset-password"; }}
+                  className="flex w-full items-center gap-3 rounded-2xl bg-white/70 px-4 py-4 text-left text-[15px] font-bold text-slate-900 shadow-sm ring-1 ring-white/60 backdrop-blur-xl transition hover:bg-white">
                   <KeyIcon className="h-5 w-5 text-slate-700" />
                   Cambiar contraseña
                 </button>
-                <button
-                  onClick={handleLogout}
-                  className="flex w-full items-center gap-3 rounded-2xl px-2 py-3 text-left text-[15px] font-bold text-red-500 transition hover:bg-red-50/70"
-                >
+                <button onClick={handleLogout}
+                  className="flex w-full items-center gap-3 rounded-2xl px-2 py-3 text-left text-[15px] font-bold text-red-500 transition hover:bg-red-50/70">
                   <LogOutIcon className="h-5 w-5" />
                   Cerrar sesión
                 </button>
