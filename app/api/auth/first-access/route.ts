@@ -1,3 +1,4 @@
+// app/api/auth/first-access/route.ts
 import { hashDocument } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
@@ -14,11 +15,7 @@ export async function POST(req: Request) {
 
     if (String(password).length < 8) {
       return Response.json(
-        {
-          ok: false,
-          step: "validacion-password",
-          error: "La contraseña debe tener al menos 8 caracteres",
-        },
+        { ok: false, step: "validacion-password", error: "La contraseña debe tener al menos 8 caracteres" },
         { status: 400 }
       );
     }
@@ -27,6 +24,7 @@ export async function POST(req: Request) {
     const cleanEmail = String(email).trim().toLowerCase();
     const documentHash = hashDocument(String(document));
 
+    // Verificar buyer
     const { data: buyer, error: buyerError } = await supabaseAdmin
       .from("buyers")
       .select("*")
@@ -47,94 +45,62 @@ export async function POST(req: Request) {
       );
     }
 
+    // ✅ Obtener la compra más reciente activa
     const { data: purchase, error: purchaseError } = await supabaseAdmin
       .from("purchases")
       .select("*")
       .eq("buyer_id", buyer.id)
       .eq("status", "APPROVED")
       .eq("subscription_status", "active")
+      .order("approved_at", { ascending: false })  // ✅ más reciente primero
+      .limit(1)
       .maybeSingle();
 
     if (purchaseError || !purchase) {
       return Response.json(
-        {
-          ok: false,
-          step: "buscar-compra",
-          error: "No tienes una suscripción activa",
-        },
+        { ok: false, step: "buscar-compra", error: "No tienes una suscripción activa" },
         { status: 403 }
       );
     }
 
     if (!purchase.expires_at || new Date(purchase.expires_at) < new Date()) {
       return Response.json(
-        {
-          ok: false,
-          step: "validar-expiracion",
-          error: "Tu acceso ha expirado",
-        },
+        { ok: false, step: "validar-expiracion", error: "Tu acceso ha expirado" },
         { status: 403 }
       );
     }
 
-    const { data: usersData, error: listUsersError } =
-      await supabaseAdmin.auth.admin.listUsers();
-
-    if (listUsersError) {
-      return Response.json(
-        {
-          ok: false,
-          step: "listar-usuarios-auth",
-          error: listUsersError.message,
-        },
-        { status: 500 }
-      );
-    }
-
-    const existingUser = usersData.users.find(
-      (u) => u.email?.toLowerCase() === cleanEmail
-    );
+    // ✅ getUserByEmail en lugar de listUsers() + find()
+    const { data: existingUserData } = await supabaseAdmin.auth.admin.getUserByEmail(cleanEmail);
+    const existingUser = existingUserData?.user ?? null;
 
     if (!existingUser) {
-      const { error: createUserError } =
-        await supabaseAdmin.auth.admin.createUser({
-          email: cleanEmail,
-          password: String(password),
-          email_confirm: true,
-          user_metadata: {
-            buyer_id: buyer.id,
-            name: buyer.name,
-          },
-        });
+      const { error: createUserError } = await supabaseAdmin.auth.admin.createUser({
+        email: cleanEmail,
+        password: String(password),
+        email_confirm: true,
+        user_metadata: { buyer_id: buyer.id, name: buyer.name },
+      });
 
       if (createUserError) {
         return Response.json(
-          {
-            ok: false,
-            step: "createUser",
-            error: createUserError.message,
-          },
+          { ok: false, step: "createUser", error: createUserError.message },
           { status: 500 }
         );
       }
     } else {
-      const { error: updateUserError } =
-        await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+      const { error: updateUserError } = await supabaseAdmin.auth.admin.updateUserById(
+        existingUser.id,
+        {
           password: String(password),
           email_confirm: true,
-          user_metadata: {
-            buyer_id: buyer.id,
-            name: buyer.name,
-          },
-        });
+          user_metadata: { buyer_id: buyer.id, name: buyer.name },
+        }
+      );
 
       if (updateUserError) {
         return Response.json(
-          {
-            ok: false,
-            step: "updateUserById",
-            error: updateUserError.message,
-          },
+          { ok: false, step: "updateUserById", error: updateUserError.message },
           { status: 500 }
         );
       }
@@ -147,11 +113,7 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     return Response.json(
-      {
-        ok: false,
-        step: "catch",
-        error: error instanceof Error ? error.message : "Error interno",
-      },
+      { ok: false, step: "catch", error: error instanceof Error ? error.message : "Error interno" },
       { status: 500 }
     );
   }
