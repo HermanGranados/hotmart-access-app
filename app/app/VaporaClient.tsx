@@ -635,42 +635,44 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
           <div className="absolute right-0 top-0 h-full w-[92%] max-w-[360px] border-l border-white/30 bg-white/70 shadow-[0_20px_60px_rgba(15,23,42,0.15)] backdrop-blur-2xl">
             <div className="flex h-full flex-col px-5 py-5 sm:px-6 sm:py-6">
               <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-[19px] font-black tracking-tight text-slate-900">Mi perfil</h2>
+                <h2 className="text-[18px] font-semibold tracking-tight text-slate-800">Mi perfil</h2>
                 <button onClick={() => setShowProfile(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/60 text-slate-500 shadow-sm ring-1 ring-black/5 transition hover:bg-white">
-                  <XIcon className="h-5 w-5" />
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/60 text-slate-400 shadow-sm ring-1 ring-black/5 transition hover:bg-white">
+                  <XIcon className="h-4 w-4" />
                 </button>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-start gap-3 rounded-3xl bg-white/55 p-3 shadow-sm ring-1 ring-white/50 backdrop-blur-xl">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50">
-                    <UserIcon className="h-5 w-5 text-blue-600" />
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 rounded-2xl bg-white/60 p-3.5 shadow-sm ring-1 ring-white/50">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-50">
+                    <UserIcon className="h-4 w-4 text-violet-500" />
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">Correo electrónico</p>
-                    <p className="mt-1 break-all text-[15px] font-bold leading-5 text-slate-900">{userEmail}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Correo electrónico</p>
+                    <p className="mt-0.5 text-[13px] font-medium text-slate-700 truncate" title={userEmail}>
+                      {userEmail}
+                    </p>
                   </div>
                 </div>
 
-                <div className="rounded-3xl bg-white/55 p-3 shadow-sm ring-1 ring-white/50 backdrop-blur-xl">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-50">
-                      <CrownIcon className="h-5 w-5 text-violet-600" />
+                <div className="rounded-2xl bg-white/60 p-3.5 shadow-sm ring-1 ring-white/50">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-50">
+                      <CrownIcon className="h-4 w-4 text-violet-500" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">Plan de suscripción</p>
-                      <p className="mt-1 text-[15px] font-bold leading-5 text-slate-900">{planName ?? "Sin plan activo"}</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Plan de suscripción</p>
+                      <p className="mt-0.5 text-[13px] font-medium text-slate-700">{planName ?? "Sin plan activo"}</p>
                     </div>
                   </div>
-                  <div className="my-4 h-px bg-slate-200/70" />
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-cyan-50">
-                      <CalendarIcon className="h-5 w-5 text-cyan-600" />
+                  <div className="my-3 h-px bg-slate-100" />
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-50">
+                      <CalendarIcon className="h-4 w-4 text-violet-500" />
                     </div>
                     <div>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-slate-400">Días restantes</p>
-                      <p className="mt-1 text-[15px] font-bold leading-5 text-slate-900">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">Días restantes</p>
+                      <p className="mt-0.5 text-[13px] font-medium text-slate-700">
                         {daysRemaining !== null ? `${daysRemaining} días` : "—"}
                       </p>
                     </div>
@@ -678,21 +680,21 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
                 </div>
               </div>
 
-              <div className="mt-6 space-y-3">
+              <div className="mt-5 space-y-2">
                 <button onClick={() => { setShowProfile(false); window.location.href = "/reset-password"; }}
-                  className="flex w-full items-center gap-3 rounded-2xl bg-white/70 px-4 py-4 text-left text-[15px] font-bold text-slate-900 shadow-sm ring-1 ring-white/60 backdrop-blur-xl transition hover:bg-white">
-                  <KeyIcon className="h-5 w-5 text-slate-700" />
-                  Cambiar contraseña
+                  className="flex w-full items-center gap-3 rounded-2xl bg-white/70 px-4 py-3.5 text-left shadow-sm ring-1 ring-white/60 transition hover:bg-white">
+                  <KeyIcon className="h-4 w-4 text-violet-400 shrink-0" />
+                  <span className="text-[14px] font-medium text-slate-700">Cambiar contraseña</span>
                 </button>
                 <button onClick={handleLogout}
-                  className="flex w-full items-center gap-3 rounded-2xl px-2 py-3 text-left text-[15px] font-bold text-red-500 transition hover:bg-red-50/70">
-                  <LogOutIcon className="h-5 w-5" />
-                  Cerrar sesión
+                  className="flex w-full items-center gap-3 rounded-2xl bg-white/60 px-4 py-3.5 text-left shadow-sm ring-1 ring-red-100 transition hover:bg-red-50/80">
+                  <LogOutIcon className="h-4 w-4 text-red-400 shrink-0" />
+                  <span className="text-[14px] font-medium text-red-500">Cerrar sesión</span>
                 </button>
               </div>
 
               <div className="mt-auto pt-6">
-                <div className="rounded-2xl bg-white/45 px-4 py-3 text-[11px] leading-5 text-slate-400 ring-1 ring-white/50 backdrop-blur-xl">
+                <div className="rounded-2xl bg-white/40 px-4 py-3 text-[11px] leading-5 text-slate-400 ring-1 ring-white/40">
                   Tu acceso premium se valida automáticamente con tu suscripción activa en Vapora.
                 </div>
               </div>
