@@ -303,10 +303,8 @@ export default function LoginPage() {
             — Anestesia Latina
           </p>
           <p className="text-center text-[12px] text-slate-400">
-            Vapora.app es una aplicación web
-          </p>
-          <p className="text-center text-[12px] text-slate-400">
-            con fines académicos y educativos
+            Vapora.app es una aplicación web con fines
+            académicos y educativos
           </p>
         </div>
 
