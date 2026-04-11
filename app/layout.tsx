@@ -28,20 +28,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-      style={{ backgroundColor: "#eef2f7" }}
-    >
-      <head>
-        <meta name="theme-color" content="#eef2f7" />
-      </head>
-      <body
-        className="min-h-full flex flex-col"
-        style={{ backgroundColor: "#eef2f7" }}
-      >
-        {children}
-      </body>
-    </html>
+<html
+  lang="es"
+  className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+  style={{ backgroundColor: "#ffffff" }}
+>
+  <head>
+    <meta name="theme-color" content="#ffffff" />
+  </head>
+  <body className="min-h-full flex flex-col" style={{ backgroundColor: "#ffffff" }}>
+    {children}
+  </body>
+</html>
   );
 }
