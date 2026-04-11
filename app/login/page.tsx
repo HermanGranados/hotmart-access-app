@@ -296,7 +296,7 @@ export default function LoginPage() {
         </p>
 
         {/* Créditos */}
-        <div className="mt-10 flex flex-col items-center gap-[6px]">
+        <div className="mt-14 flex flex-col items-center gap-[6px]">
           <p className="text-center text-[13px] text-slate-500">
             Desarrollada por el{" "}
             <strong className="font-semibold text-slate-700">Dr. Herman Granados</strong>{" "}
