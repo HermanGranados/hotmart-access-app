@@ -28,17 +28,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-<html
-  lang="es"
-  className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-  style={{ backgroundColor: "#ffffff" }}
->
-  <head>
-    <meta name="theme-color" content="#ffffff" />
-  </head>
-  <body className="min-h-full flex flex-col" style={{ backgroundColor: "#ffffff" }}>
-    {children}
-  </body>
-</html>
+    <html
+      lang="es"
+      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      style={{ backgroundColor: "#ffffff" }}
+    >
+      <head>
+        <meta name="theme-color" content="#ffffff" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon.png" />
+        <link rel="apple-touch-icon" href="/apple-icon.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Vapora.app" />
+      </head>
+      <body className="min-h-full flex flex-col" style={{ backgroundColor: "#ffffff" }}>
+        {children}
+      </body>
+    </html>
   );
 }
