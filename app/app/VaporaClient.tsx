@@ -803,13 +803,13 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
 
         return (
           <div className="fixed inset-0 z-[60] flex items-center justify-center px-4"
-            style={{ background: "rgba(15,23,42,0.4)", backdropFilter: "blur(6px)" }}>
+            style={{ background: "rgba(8,6,24,0.75)", backdropFilter: "blur(12px)" }}>
             <div className="w-full max-w-[390px] rounded-[28px] overflow-hidden relative"
-              style={{ boxShadow: "0 32px 64px rgba(15,23,42,0.22)" }}>
+              style={{ boxShadow: "0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.12)" }}>
 
               {/* Header oscuro */}
               <div className="relative text-center px-7 pt-7 pb-6"
-                style={{ background: "linear-gradient(135deg,#1a1040,#0f0c29)" }}>
+                style={{ background: "linear-gradient(135deg,#2d1f6e,#1a1040)", borderBottom: "0.5px solid rgba(255,255,255,0.08)" }}>
                 <button onClick={closeChangePassword}
                   className="absolute top-4 right-4 flex items-center justify-center rounded-full transition"
                   style={{ width: 28, height: 28, background: "rgba(255,255,255,0.08)", border: "0.5px solid rgba(255,255,255,0.12)" }}>
