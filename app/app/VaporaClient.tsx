@@ -709,12 +709,12 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
 
       {/* Banner de días de prueba */}
       {showTrialBanner && (
-        <div className="fixed inset-0 z-[55] flex items-end justify-center pb-8 px-4"
-          style={{ background: "rgba(8,6,24,0.6)", backdropFilter: "blur(8px)" }}
+        <div className="fixed inset-0 z-[55] flex items-center justify-center px-4"
+          style={{ background: "rgba(8,6,24,0.75)", backdropFilter: "blur(12px)" }}
           onClick={() => setShowTrialBanner(false)}>
           <div
             className="w-full max-w-[390px] rounded-[24px] overflow-hidden"
-            style={{ boxShadow: "0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)" }}
+            style={{ boxShadow: "0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.12)" }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
