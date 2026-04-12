@@ -779,107 +779,165 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
         </div>
       )}
       {/* Modal cambio de contraseña */}
-      {showChangePassword && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4"
-          style={{ background: "rgba(15,23,42,0.35)", backdropFilter: "blur(6px)" }}>
-          <div className="w-full max-w-[400px] rounded-[28px] p-7 relative bg-white"
-            style={{ boxShadow: "0 24px 60px rgba(15,23,42,0.18)" }}>
+      {showChangePassword && (() => {
+        const hasMin8 = cpPassword.length >= 8;
+        const hasNum = /[0-9]/.test(cpPassword);
+        const noSpaces = cpPassword.length > 0 && !/\s/.test(cpPassword);
+        const allValid = hasMin8 && hasNum && noSpaces;
+        const matches = allValid && cpPassword === cpConfirm && cpConfirm.length > 0;
+        const strengthScore = [hasMin8, hasNum, noSpaces].filter(Boolean).length;
+        const strengthLabel = strengthScore === 0 ? "" : strengthScore === 1 ? "Débil" : strengthScore === 2 ? "Moderada" : "Fuerte";
+        const strengthColor = strengthScore === 1 ? "#f87171" : strengthScore === 2 ? "#fb923c" : "#a78bfa";
 
-            {/* Cerrar */}
-            <button onClick={closeChangePassword}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition">
-              <XIcon className="w-4 h-4" />
-            </button>
-
-            {/* Ícono y título */}
-            <div className="flex flex-col items-center text-center mb-6">
-              <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4"
-                style={{ background: "linear-gradient(135deg,#ede9fe,#ddd6fe)" }}>
-                {cpSuccess
-                  ? <CheckIcon className="w-6 h-6 text-violet-500" />
-                  : <LockIcon className="w-6 h-6 text-violet-500" />
-                }
-              </div>
-              <h2 className="text-[20px] font-semibold text-slate-800 tracking-tight">
-                {cpSuccess ? "¡Contraseña actualizada!" : "Cambiar contraseña"}
-              </h2>
-              <p className="text-[13px] text-slate-400 font-light mt-1">
-                {cpSuccess
-                  ? "Ya puedes usar tu nueva contraseña."
-                  : "Ingresa tu nueva contraseña."}
-              </p>
+        const ReqRow = ({ ok, label }: { ok: boolean; label: string }) => (
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, fontWeight: 500, color: ok ? "#7c3aed" : "#cbd5e1" }}>
+            <div style={{ width: 16, height: 16, borderRadius: "50%", background: ok ? "#ede9fe" : "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              {ok
+                ? <CheckIcon style={{ width: 9, height: 9, stroke: "#7c3aed", strokeWidth: 2.5, fill: "none" }} />
+                : <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#cbd5e1", display: "block" }} />
+              }
             </div>
-
-            {!cpSuccess ? (
-              <div className="space-y-4">
-                {/* Nueva contraseña */}
-                <div>
-                  <label className="block text-[12px] font-semibold text-slate-500 mb-2 uppercase tracking-wide">
-                    Nueva contraseña
-                  </label>
-                  <div className="flex items-center gap-3 rounded-[14px] px-4 py-3.5"
-                    style={{ background: "#f8fafc", border: "0.5px solid #e2e8f0" }}>
-                    <LockIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <input
-                      type={cpShowPass ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={cpPassword}
-                      onChange={(e) => setCpPassword(e.target.value)}
-                      className="flex-1 bg-transparent text-slate-800 outline-none"
-                      style={{ fontSize: "16px" }}
-                    />
-                    <button type="button" onClick={() => setCpShowPass(v => !v)}
-                      className="text-slate-400 hover:text-slate-600 transition">
-                      {cpShowPass ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Confirmar contraseña */}
-                <div>
-                  <label className="block text-[12px] font-semibold text-slate-500 mb-2 uppercase tracking-wide">
-                    Confirmar contraseña
-                  </label>
-                  <div className="flex items-center gap-3 rounded-[14px] px-4 py-3.5"
-                    style={{ background: "#f8fafc", border: "0.5px solid #e2e8f0" }}>
-                    <LockIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                    <input
-                      type={cpShowConfirm ? "text" : "password"}
-                      placeholder="••••••••"
-                      value={cpConfirm}
-                      onChange={(e) => setCpConfirm(e.target.value)}
-                      className="flex-1 bg-transparent text-slate-800 outline-none"
-                      style={{ fontSize: "16px" }}
-                    />
-                    <button type="button" onClick={() => setCpShowConfirm(v => !v)}
-                      className="text-slate-400 hover:text-slate-600 transition">
-                      {cpShowConfirm ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {cpMessage && (
-                  <p className="text-[12px] text-red-500 font-medium text-center">{cpMessage}</p>
-                )}
-
-                <button onClick={handleUpdatePassword} disabled={cpLoading}
-                  className="w-full rounded-[14px] py-[15px] text-[15px] font-semibold text-white transition-all disabled:opacity-60 mt-1"
-                  style={{ background: "#2D74DA", boxShadow: "0 8px 24px rgba(45,116,218,0.25)" }}>
-                  {cpLoading ? "Actualizando..." : "Actualizar contraseña"}
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <button onClick={closeChangePassword}
-                  className="w-full rounded-[14px] py-[15px] text-[15px] font-semibold text-white"
-                  style={{ background: "#2D74DA", boxShadow: "0 8px 24px rgba(45,116,218,0.25)" }}>
-                  Cerrar
-                </button>
-              </div>
-            )}
+            {label}
           </div>
-        </div>
-      )}
+        );
+
+        return (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center px-4"
+            style={{ background: "rgba(15,23,42,0.4)", backdropFilter: "blur(6px)" }}>
+            <div className="w-full max-w-[390px] rounded-[28px] overflow-hidden relative"
+              style={{ boxShadow: "0 32px 64px rgba(15,23,42,0.22)" }}>
+
+              {/* Header oscuro */}
+              <div className="relative text-center px-7 pt-7 pb-6"
+                style={{ background: "linear-gradient(135deg,#1a1040,#0f0c29)" }}>
+                <button onClick={closeChangePassword}
+                  className="absolute top-4 right-4 flex items-center justify-center rounded-full transition"
+                  style={{ width: 28, height: 28, background: "rgba(255,255,255,0.08)", border: "0.5px solid rgba(255,255,255,0.12)" }}>
+                  <XIcon style={{ width: 11, height: 11, stroke: "rgba(255,255,255,0.5)", strokeWidth: 2, fill: "none" }} />
+                </button>
+                <div className="mx-auto mb-4 flex items-center justify-center rounded-full"
+                  style={{ width: 58, height: 58, background: "linear-gradient(135deg,rgba(192,132,252,0.25),rgba(129,140,248,0.25))", border: "0.5px solid rgba(192,132,252,0.35)" }}>
+                  {cpSuccess
+                    ? <CheckIcon style={{ width: 24, height: 24, stroke: "#c4b5fd", strokeWidth: 2, fill: "none" }} />
+                    : <LockIcon style={{ width: 24, height: 24, stroke: "#c4b5fd", strokeWidth: 1.8, fill: "none" }} />
+                  }
+                </div>
+                <h2 style={{ fontSize: 19, fontWeight: 600, background: "linear-gradient(135deg,#e9d5ff,#c4b5fd,#93c5fd)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.3px", marginBottom: 3 }}>
+                  {cpSuccess ? "¡Contraseña actualizada!" : "Cambiar contraseña"}
+                </h2>
+                <p style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", fontWeight: 300 }}>
+                  {cpSuccess ? "Ya puedes usar tu nueva contraseña." : "Ingresa tu nueva contraseña segura"}
+                </p>
+              </div>
+
+              {/* Body blanco */}
+              <div className="bg-white px-6 py-5">
+                {!cpSuccess ? (
+                  <div className="space-y-4">
+
+                    {/* Nueva contraseña */}
+                    <div>
+                      <label className="block mb-2" style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                        Nueva contraseña
+                      </label>
+                      <div className="flex items-center gap-3 rounded-[14px] px-4"
+                        style={{ background: "#f8fafc", border: "0.5px solid #e2e8f0", padding: "12px 14px" }}>
+                        <LockIcon style={{ width: 15, height: 15, stroke: "#94a3b8", strokeWidth: 2, fill: "none", flexShrink: 0 }} />
+                        <input
+                          type={cpShowPass ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={cpPassword}
+                          onChange={(e) => setCpPassword(e.target.value)}
+                          className="flex-1 bg-transparent text-slate-800 outline-none"
+                          style={{ fontSize: "16px", border: "none" }}
+                        />
+                        <button type="button" onClick={() => setCpShowPass(v => !v)}
+                          className="text-slate-400 hover:text-slate-600 transition">
+                          {cpShowPass ? <EyeOffIcon style={{ width: 15, height: 15 }} /> : <EyeIcon style={{ width: 15, height: 15 }} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Requisitos en tiempo real */}
+                    {cpPassword.length > 0 && (
+                      <div style={{ background: "#fafbfc", border: "0.5px solid #f1f5f9", borderRadius: 12, padding: "10px 14px", display: "flex", flexDirection: "column", gap: 7 }}>
+                        <ReqRow ok={hasMin8} label="Mínimo 8 caracteres" />
+                        <ReqRow ok={hasNum} label="Al menos un número" />
+                        <ReqRow ok={noSpaces} label="Sin espacios" />
+                      </div>
+                    )}
+
+                    {/* Barra de fortaleza */}
+                    {cpPassword.length > 0 && (
+                      <div>
+                        <div style={{ display: "flex", gap: 4, marginBottom: 4 }}>
+                          {[1,2,3].map(i => (
+                            <div key={i} style={{ height: 3, flex: 1, borderRadius: 2, background: i <= strengthScore ? strengthColor : "#f1f5f9", transition: "background 0.2s" }} />
+                          ))}
+                        </div>
+                        <p style={{ fontSize: 11, fontWeight: 500, color: strengthColor, textAlign: "right" }}>{strengthLabel}</p>
+                      </div>
+                    )}
+
+                    {/* Confirmar contraseña */}
+                    <div>
+                      <label className="block mb-2" style={{ fontSize: 10, fontWeight: 600, color: "#94a3b8", letterSpacing: "0.12em", textTransform: "uppercase" }}>
+                        Confirmar contraseña
+                      </label>
+                      <div className="flex items-center gap-3 rounded-[14px]"
+                        style={{ background: "#f8fafc", border: `0.5px solid ${matches ? "#a78bfa" : "#e2e8f0"}`, padding: "12px 14px", transition: "border-color 0.2s" }}>
+                        <LockIcon style={{ width: 15, height: 15, stroke: matches ? "#a78bfa" : "#94a3b8", strokeWidth: 2, fill: "none", flexShrink: 0 }} />
+                        <input
+                          type={cpShowConfirm ? "text" : "password"}
+                          placeholder="••••••••"
+                          value={cpConfirm}
+                          onChange={(e) => setCpConfirm(e.target.value)}
+                          className="flex-1 bg-transparent text-slate-800 outline-none"
+                          style={{ fontSize: "16px", border: "none" }}
+                        />
+                        <button type="button" onClick={() => setCpShowConfirm(v => !v)}
+                          className="text-slate-400 hover:text-slate-600 transition">
+                          {cpShowConfirm ? <EyeOffIcon style={{ width: 15, height: 15 }} /> : <EyeIcon style={{ width: 15, height: 15 }} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    {cpMessage && (
+                      <p style={{ fontSize: 12, color: "#f87171", fontWeight: 500, textAlign: "center" }}>{cpMessage}</p>
+                    )}
+
+                    {/* Botón — cambia texto cuando coinciden */}
+                    <button
+                      onClick={handleUpdatePassword}
+                      disabled={cpLoading}
+                      className="w-full rounded-[14px] text-white font-semibold transition-all disabled:opacity-50"
+                      style={{
+                        padding: "15px",
+                        fontSize: 15,
+                        background: matches
+                          ? "linear-gradient(135deg,#a78bfa,#818cf8)"
+                          : "linear-gradient(135deg,#c4b5fd,#a5b4fc)",
+                        boxShadow: matches ? "0 8px 20px rgba(129,140,248,0.35)" : "none",
+                        transition: "all 0.2s",
+                      }}
+                    >
+                      {cpLoading ? "Actualizando..." : matches ? "Confirmar" : "Actualizar contraseña"}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center py-2">
+                    <button onClick={closeChangePassword}
+                      className="w-full rounded-[14px] text-white font-semibold"
+                      style={{ padding: "15px", fontSize: 15, background: "linear-gradient(135deg,#a78bfa,#818cf8)", boxShadow: "0 8px 20px rgba(129,140,248,0.3)" }}>
+                      Cerrar
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </>
   );
 }
