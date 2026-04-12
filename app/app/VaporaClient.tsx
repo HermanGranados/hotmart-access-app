@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import CalcANALGESIQ from "./CalcANALGESIQ";
 
 function ActivityIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -107,6 +108,43 @@ function XIcon(props: React.SVGProps<SVGSVGElement>) {
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M18 6 6 18" />
       <path d="m6 6 12 12" />
+    </svg>
+  );
+}
+
+function LockIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="11" width="16" height="9" rx="2" />
+      <path d="M8 11V8a4 4 0 1 1 8 0v3" />
+    </svg>
+  );
+}
+
+function EyeIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+}
+
+function EyeOffIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="m3 3 18 18" />
+      <path d="M10.6 10.6a2 2 0 0 0 2.8 2.8" />
+      <path d="M9.9 5.2A10.7 10.7 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2" />
+      <path d="M6.6 6.7C3.8 8.5 2 12 2 12a17.8 17.8 0 0 0 5.4 5.5" />
+    </svg>
+  );
+}
+
+function CheckIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 6 9 17l-5-5" />
     </svg>
   );
 }
@@ -529,6 +567,44 @@ type Props = {
 export default function VaporaClient({ isPremium, userEmail, planName, daysRemaining }: Props) {
   const [vistaActual, setVistaActual] = useState<"home" | "mac" | "locu" | "analgesiq">("home");
   const [showProfile, setShowProfile] = useState(false);
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [cpPassword, setCpPassword] = useState("");
+  const [cpConfirm, setCpConfirm] = useState("");
+  const [cpShowPass, setCpShowPass] = useState(false);
+  const [cpShowConfirm, setCpShowConfirm] = useState(false);
+  const [cpLoading, setCpLoading] = useState(false);
+  const [cpMessage, setCpMessage] = useState("");
+  const [cpSuccess, setCpSuccess] = useState(false);
+
+  function openChangePassword() {
+    setCpPassword(""); setCpConfirm(""); setCpMessage("");
+    setCpSuccess(false); setCpShowPass(false); setCpShowConfirm(false);
+    setShowProfile(false);
+    setShowChangePassword(true);
+  }
+
+  function closeChangePassword() {
+    setShowChangePassword(false);
+    setCpPassword(""); setCpConfirm(""); setCpMessage(""); setCpSuccess(false);
+  }
+
+  async function handleUpdatePassword() {
+    if (!cpPassword || cpPassword.length < 8) {
+      setCpMessage("La contraseña debe tener al menos 8 caracteres.");
+      return;
+    }
+    if (cpPassword !== cpConfirm) {
+      setCpMessage("Las contraseñas no coinciden.");
+      return;
+    }
+    setCpMessage("");
+    setCpLoading(true);
+    const supabase = createSupabaseBrowserClient();
+    const { error } = await supabase.auth.updateUser({ password: cpPassword });
+    setCpLoading(false);
+    if (error) { setCpMessage(error.message); return; }
+    setCpSuccess(true);
+  }
 
   return (
     <>
@@ -681,7 +757,7 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
               </div>
 
               <div className="mt-5 space-y-2">
-                <button onClick={() => { setShowProfile(false); window.location.href = "/reset-password"; }}
+                <button onClick={openChangePassword}
                   className="flex w-full items-center gap-3 rounded-2xl bg-white/70 px-4 py-3.5 text-left shadow-sm ring-1 ring-white/60 transition hover:bg-white">
                   <KeyIcon className="h-4 w-4 text-violet-400 shrink-0" />
                   <span className="text-[14px] font-medium text-slate-700">Cambiar contraseña</span>
@@ -699,6 +775,108 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+      {/* Modal cambio de contraseña */}
+      {showChangePassword && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center px-4"
+          style={{ background: "rgba(15,23,42,0.35)", backdropFilter: "blur(6px)" }}>
+          <div className="w-full max-w-[400px] rounded-[28px] p-7 relative bg-white"
+            style={{ boxShadow: "0 24px 60px rgba(15,23,42,0.18)" }}>
+
+            {/* Cerrar */}
+            <button onClick={closeChangePassword}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 transition">
+              <XIcon className="w-4 h-4" />
+            </button>
+
+            {/* Ícono y título */}
+            <div className="flex flex-col items-center text-center mb-6">
+              <div className="w-14 h-14 rounded-full flex items-center justify-center mb-4"
+                style={{ background: "linear-gradient(135deg,#ede9fe,#ddd6fe)" }}>
+                {cpSuccess
+                  ? <CheckIcon className="w-6 h-6 text-violet-500" />
+                  : <LockIcon className="w-6 h-6 text-violet-500" />
+                }
+              </div>
+              <h2 className="text-[20px] font-semibold text-slate-800 tracking-tight">
+                {cpSuccess ? "¡Contraseña actualizada!" : "Cambiar contraseña"}
+              </h2>
+              <p className="text-[13px] text-slate-400 font-light mt-1">
+                {cpSuccess
+                  ? "Ya puedes usar tu nueva contraseña."
+                  : "Ingresa tu nueva contraseña."}
+              </p>
+            </div>
+
+            {!cpSuccess ? (
+              <div className="space-y-4">
+                {/* Nueva contraseña */}
+                <div>
+                  <label className="block text-[12px] font-semibold text-slate-500 mb-2 uppercase tracking-wide">
+                    Nueva contraseña
+                  </label>
+                  <div className="flex items-center gap-3 rounded-[14px] px-4 py-3.5"
+                    style={{ background: "#f8fafc", border: "0.5px solid #e2e8f0" }}>
+                    <LockIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                    <input
+                      type={cpShowPass ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={cpPassword}
+                      onChange={(e) => setCpPassword(e.target.value)}
+                      className="flex-1 bg-transparent text-slate-800 outline-none"
+                      style={{ fontSize: "16px" }}
+                    />
+                    <button type="button" onClick={() => setCpShowPass(v => !v)}
+                      className="text-slate-400 hover:text-slate-600 transition">
+                      {cpShowPass ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Confirmar contraseña */}
+                <div>
+                  <label className="block text-[12px] font-semibold text-slate-500 mb-2 uppercase tracking-wide">
+                    Confirmar contraseña
+                  </label>
+                  <div className="flex items-center gap-3 rounded-[14px] px-4 py-3.5"
+                    style={{ background: "#f8fafc", border: "0.5px solid #e2e8f0" }}>
+                    <LockIcon className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                    <input
+                      type={cpShowConfirm ? "text" : "password"}
+                      placeholder="••••••••"
+                      value={cpConfirm}
+                      onChange={(e) => setCpConfirm(e.target.value)}
+                      className="flex-1 bg-transparent text-slate-800 outline-none"
+                      style={{ fontSize: "16px" }}
+                    />
+                    <button type="button" onClick={() => setCpShowConfirm(v => !v)}
+                      className="text-slate-400 hover:text-slate-600 transition">
+                      {cpShowConfirm ? <EyeOffIcon className="w-4 h-4" /> : <EyeIcon className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {cpMessage && (
+                  <p className="text-[12px] text-red-500 font-medium text-center">{cpMessage}</p>
+                )}
+
+                <button onClick={handleUpdatePassword} disabled={cpLoading}
+                  className="w-full rounded-[14px] py-[15px] text-[15px] font-semibold text-white transition-all disabled:opacity-60 mt-1"
+                  style={{ background: "#2D74DA", boxShadow: "0 8px 24px rgba(45,116,218,0.25)" }}>
+                  {cpLoading ? "Actualizando..." : "Actualizar contraseña"}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <button onClick={closeChangePassword}
+                  className="w-full rounded-[14px] py-[15px] text-[15px] font-semibold text-white"
+                  style={{ background: "#2D74DA", boxShadow: "0 8px 24px rgba(45,116,218,0.25)" }}>
+                  Cerrar
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
