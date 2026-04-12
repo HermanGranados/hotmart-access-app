@@ -819,7 +819,7 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
                   style={{ width: 58, height: 58, background: "linear-gradient(135deg,rgba(192,132,252,0.25),rgba(129,140,248,0.25))", border: "0.5px solid rgba(192,132,252,0.35)" }}>
                   {cpSuccess
                     ? <CheckIcon style={{ width: 24, height: 24, stroke: "#c4b5fd", strokeWidth: 2, fill: "none" }} />
-                    : <LockIcon style={{ width: 24, height: 24, stroke: "#c4b5fd", strokeWidth: 1.8, fill: "none" }} />
+                    : <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/password.png" alt="password" style={{ width: 30, height: 30, objectFit: "contain" }} />
                   }
                 </div>
                 <h2 style={{ fontSize: 19, fontWeight: 600, background: "linear-gradient(135deg,#e9d5ff,#c4b5fd,#93c5fd)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.3px", marginBottom: 3 }}>
@@ -906,23 +906,28 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
                       <p style={{ fontSize: 12, color: "#f87171", fontWeight: 500, textAlign: "center" }}>{cpMessage}</p>
                     )}
 
-                    {/* Botón — cambia texto cuando coinciden */}
-                    <button
-                      onClick={handleUpdatePassword}
-                      disabled={cpLoading}
-                      className="w-full rounded-[14px] text-white font-semibold transition-all disabled:opacity-50"
-                      style={{
-                        padding: "15px",
-                        fontSize: 15,
-                        background: matches
-                          ? "linear-gradient(135deg,#a78bfa,#818cf8)"
-                          : "linear-gradient(135deg,#c4b5fd,#a5b4fc)",
-                        boxShadow: matches ? "0 8px 20px rgba(129,140,248,0.35)" : "none",
-                        transition: "all 0.2s",
-                      }}
-                    >
-                      {cpLoading ? "Actualizando..." : matches ? "Confirmar" : "Actualizar contraseña"}
-                    </button>
+                    {/* Botón — texto dinámico según estado */}
+                    {(() => {
+                      const confirmFilled = cpConfirm.length > 0;
+                      const mismatch = allValid && confirmFilled && cpConfirm === cpPassword.slice(0, cpConfirm.length) === false && cpConfirm.length >= cpPassword.length && cpPassword !== cpConfirm;
+                      const btnLabel = cpLoading ? "Actualizando..." : matches ? "Confirmar" : mismatch ? "Contraseñas no coinciden" : "Actualizar contraseña";
+                      const btnBg = matches
+                        ? "linear-gradient(135deg,#a78bfa,#818cf8)"
+                        : mismatch
+                        ? "linear-gradient(135deg,#fca5a5,#f87171)"
+                        : "linear-gradient(135deg,#c4b5fd,#a5b4fc)";
+                      const btnShadow = matches ? "0 8px 20px rgba(129,140,248,0.35)" : mismatch ? "0 8px 20px rgba(248,113,113,0.25)" : "none";
+                      return (
+                        <button
+                          onClick={handleUpdatePassword}
+                          disabled={cpLoading}
+                          className="w-full rounded-[14px] text-white font-semibold transition-all disabled:opacity-50"
+                          style={{ padding: "15px", fontSize: 15, background: btnBg, boxShadow: btnShadow, transition: "all 0.2s" }}
+                        >
+                          {btnLabel}
+                        </button>
+                      );
+                    })()}
                   </div>
                 ) : (
                   <div className="text-center py-2">
