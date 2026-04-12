@@ -568,7 +568,7 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
   const [vistaActual, setVistaActual] = useState<"home" | "mac" | "locu" | "analgesiq">("home");
   const [showProfile, setShowProfile] = useState(false);
   const [showTrialBanner, setShowTrialBanner] = useState(
-    daysRemaining !== null && daysRemaining <= 10
+    daysRemaining !== null
   );
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [cpPassword, setCpPassword] = useState("");
