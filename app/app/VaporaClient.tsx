@@ -567,6 +567,9 @@ type Props = {
 export default function VaporaClient({ isPremium, userEmail, planName, daysRemaining }: Props) {
   const [vistaActual, setVistaActual] = useState<"home" | "mac" | "locu" | "analgesiq">("home");
   const [showProfile, setShowProfile] = useState(false);
+  const [showTrialBanner, setShowTrialBanner] = useState(
+    daysRemaining !== null && daysRemaining <= 10
+  );
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [cpPassword, setCpPassword] = useState("");
   const [cpConfirm, setCpConfirm] = useState("");
@@ -702,6 +705,62 @@ export default function VaporaClient({ isPremium, userEmail, planName, daysRemai
       {vistaActual === "locu" && <CalcLOCUDose onBack={() => setVistaActual("home")} onProfile={() => setShowProfile(true)} />}
       {vistaActual === "analgesiq" && isPremium && (
         <CalcANALGESIQ onBack={() => setVistaActual("home")} onProfile={() => setShowProfile(true)} />
+      )}
+
+      {/* Banner de días de prueba */}
+      {showTrialBanner && (
+        <div className="fixed inset-0 z-[55] flex items-end justify-center pb-8 px-4"
+          style={{ background: "rgba(8,6,24,0.6)", backdropFilter: "blur(8px)" }}
+          onClick={() => setShowTrialBanner(false)}>
+          <div
+            className="w-full max-w-[390px] rounded-[24px] overflow-hidden"
+            style={{ boxShadow: "0 24px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.1)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="relative px-6 pt-6 pb-5 text-center"
+              style={{ background: "linear-gradient(135deg,#2d1f6e,#1a1040)" }}>
+              <button
+                onClick={() => setShowTrialBanner(false)}
+                className="absolute top-4 right-4 flex items-center justify-center rounded-full transition"
+                style={{ width: 28, height: 28, background: "rgba(255,255,255,0.08)", border: "0.5px solid rgba(255,255,255,0.12)" }}>
+                <XIcon style={{ width: 11, height: 11, stroke: "rgba(255,255,255,0.5)", strokeWidth: 2, fill: "none" }} />
+              </button>
+              <div className="mx-auto mb-3 flex items-center justify-center rounded-full"
+                style={{ width: 52, height: 52, background: "linear-gradient(135deg,rgba(192,132,252,0.25),rgba(129,140,248,0.25))", border: "0.5px solid rgba(192,132,252,0.35)" }}>
+                <span style={{ fontSize: 22 }}>⏳</span>
+              </div>
+              <h2 style={{ fontSize: 18, fontWeight: 600, background: "linear-gradient(135deg,#e9d5ff,#c4b5fd,#93c5fd)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.3px", marginBottom: 3 }}>
+                Acceso de prueba
+              </h2>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.4)", fontWeight: 300 }}>
+                Tu cuenta de tester está activa
+              </p>
+            </div>
+            {/* Body */}
+            <div className="bg-white px-6 py-5 text-center">
+              <div className="mb-4">
+                <span style={{ fontSize: 48, fontWeight: 800, background: "linear-gradient(135deg,#a78bfa,#818cf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", lineHeight: 1 }}>
+                  {daysRemaining}
+                </span>
+                <p style={{ fontSize: 13, color: "#94a3b8", fontWeight: 500, marginTop: 4 }}>
+                  {daysRemaining === 1 ? "día restante" : "días restantes"}
+                </p>
+              </div>
+              <div style={{ background: "#f8fafc", border: "0.5px solid #f1f5f9", borderRadius: 12, padding: "10px 14px", marginBottom: 16 }}>
+                <p style={{ fontSize: 12, color: "#64748b", lineHeight: 1.6 }}>
+                  Estás usando una cuenta de acceso temporal para explorar Vapora.app. Disfruta todas las funcionalidades durante tu período de prueba.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowTrialBanner(false)}
+                className="w-full rounded-[14px] text-white font-semibold"
+                style={{ padding: "14px", fontSize: 15, background: "linear-gradient(135deg,#a78bfa,#818cf8)", boxShadow: "0 8px 20px rgba(129,140,248,0.3)" }}>
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Panel de perfil */}
