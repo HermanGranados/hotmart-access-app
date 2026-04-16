@@ -51,6 +51,16 @@ function ChevronDownIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
+function Trash2Icon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+      <line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>
+    </svg>
+  );
+}
+
 function SyringeIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -205,6 +215,14 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
     return null;
   }, [numVol, numRate]);
 
+  function resetAll() {
+    setTargetLa(""); setTargetOpi(""); setTargetAdj("");
+    setTotalVol(""); setRate("10");
+    setOpiType("fenta"); setAdjType("none");
+    setAntiCheck(false); setAntiType("lmwh_pro");
+    setIndication("labor"); setLaType("bupi_05");
+  }
+
   const getLaSuggestion = (type: string) => {
     if (type.startsWith("bupi")) return "Sugerencia: 0.0625% - 0.125%";
     if (type.startsWith("levo")) return "Sugerencia: 0.0625% - 0.125%";
@@ -320,9 +338,15 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
 
             {/* Mezcla de fármacos */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 border-b border-slate-100 pb-2 font-black uppercase text-sm text-slate-700">
-                <BeakerIcon className="w-5 h-5 text-[#F43F5E]" />
-                Mezcla de Fármacos
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                <div className="flex items-center gap-2 font-black uppercase text-sm text-slate-700">
+                  <BeakerIcon className="w-5 h-5 text-[#F43F5E]" />
+                  Mezcla de Fármacos
+                </div>
+                <button onClick={resetAll}
+                  className="inline-flex items-center gap-1.5 bg-slate-100 text-[#F43F5E] hover:bg-rose-50 px-3 py-2 rounded-lg text-xs font-black tracking-widest uppercase transition-colors">
+                  <Trash2Icon className="w-3.5 h-3.5" /> Limpiar
+                </button>
               </div>
 
               {/* Anestésico Local */}
