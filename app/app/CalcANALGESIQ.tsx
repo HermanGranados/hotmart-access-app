@@ -522,8 +522,8 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                 <div className="space-y-4">
                   <div>
                     <label className="text-xs font-black text-[#F39169] uppercase tracking-wider block mb-1">CONC. FINAL (C₂ %)</label>
-                    <input type="number" inputMode="decimal" step="0.001" value={data.epi.c2}
-                      onChange={(e) => setData({ ...data, epi: { ...data.epi, c2: e.target.value } })}
+                    <input type="text" inputMode="decimal" step="0.001" value={data.epi.c2}
+                      onChange={(e) => setData({ ...data, epi: { ...data.epi, c2: e.target.value.replace(",", ".") } })}
                       className="w-full p-3 bg-white border border-slate-100 rounded-xl font-black text-slate-800 outline-none"
                       style={{ fontSize: "16px" }} placeholder="0.125" />
                   </div>

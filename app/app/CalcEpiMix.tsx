@@ -337,8 +337,8 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
                 </select>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Concentración Deseada (%)</label>
-                  <input type="number" inputMode="decimal" step="0.001" min="0" placeholder="Ej. 0.1" value={targetLa}
-                    onChange={(e) => setTargetLa(e.target.value)}
+                  <input type="text" inputMode="decimal" step="0.001" min="0" placeholder="Ej. 0.1" value={targetLa}
+                    onChange={(e) => setTargetLa(e.target.value.replace(",", "."))}
                     className="w-full py-3 px-4 text-center text-slate-800 font-black border border-rose-100 bg-white rounded-xl focus:border-[#F43F5E] focus:outline-none transition-all placeholder:text-slate-300"
                     style={{ fontSize: "18px", MozAppearance: "textfield" }} />
                   <p className="text-[10px] text-slate-400 font-medium mt-1.5 text-center">{getLaSuggestion(laType)}</p>
@@ -392,8 +392,8 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">
                       Dosis Deseada ({opiOptions[opiType].unit})
                     </label>
-                    <input type="number" inputMode="decimal" step="0.1" min="0" placeholder="Ej. 2" value={targetOpi}
-                      onChange={(e) => setTargetOpi(e.target.value)}
+                    <input type="text" inputMode="decimal" step="0.1" min="0" placeholder="Ej. 2" value={targetOpi}
+                      onChange={(e) => setTargetOpi(e.target.value.replace(",", "."))}
                       className="w-full py-3 px-4 text-center text-slate-800 font-black border border-rose-100 bg-white rounded-xl focus:border-[#F43F5E] focus:outline-none transition-all placeholder:text-slate-300"
                       style={{ fontSize: "18px", MozAppearance: "textfield" }} />
                     <p className="text-[10px] text-slate-400 font-medium mt-1.5 text-center">{getOpiSuggestion(opiType)}</p>
@@ -416,8 +416,8 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">
                       Dosis Deseada ({adjOptions[adjType].unit})
                     </label>
-                    <input type="number" inputMode="decimal" step="0.1" min="0" placeholder="Ej. 2" value={targetAdj}
-                      onChange={(e) => setTargetAdj(e.target.value)}
+                    <input type="text" inputMode="decimal" step="0.1" min="0" placeholder="Ej. 2" value={targetAdj}
+                      onChange={(e) => setTargetAdj(e.target.value.replace(",", "."))}
                       className="w-full py-3 px-4 text-center text-slate-800 font-black border border-rose-100 bg-white rounded-xl focus:border-[#F43F5E] focus:outline-none transition-all placeholder:text-slate-300"
                       style={{ fontSize: "18px", MozAppearance: "textfield" }} />
                     <p className="text-[10px] text-slate-400 font-medium mt-1.5 text-center">{getAdjSuggestion(adjType)}</p>

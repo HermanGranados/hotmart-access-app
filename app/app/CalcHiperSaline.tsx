@@ -160,8 +160,8 @@ export default function CalcHiperSaline({ onBack, onProfile }: Props) {
                   <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Conc. Objetivo</label>
                 </div>
                 <div className="flex items-baseline justify-center gap-1 px-4 py-6">
-                  <input type="number" inputMode="decimal" step="0.1" min="0" placeholder="0" value={cf}
-                    onChange={(e) => setCf(e.target.value)}
+                  <input type="text" inputMode="decimal" step="0.1" min="0" placeholder="0" value={cf}
+                    onChange={(e) => setCf(e.target.value.replace(",", "."))}
                     className="w-full text-center font-black text-[#10B981] bg-transparent outline-none placeholder:text-emerald-100"
                     style={{ fontSize: "44px", lineHeight: 1, MozAppearance: "textfield" }} />
                   <span className="text-lg font-bold text-slate-400 self-end pb-1">%</span>
@@ -173,7 +173,7 @@ export default function CalcHiperSaline({ onBack, onProfile }: Props) {
                 </div>
                 <div className="flex items-baseline justify-center gap-1 px-4 py-6">
                   <input type="number" inputMode="decimal" step="1" min="0" placeholder="0" value={vf}
-                    onChange={(e) => setVf(e.target.value)}
+                    onChange={(e) => setVf(e.target.value.replace(",", "."))}
                     className="w-full text-center font-black text-[#10B981] bg-transparent outline-none placeholder:text-emerald-100"
                     style={{ fontSize: "44px", lineHeight: 1, MozAppearance: "textfield" }} />
                   <span className="text-lg font-bold text-slate-400 self-end pb-1">mL</span>

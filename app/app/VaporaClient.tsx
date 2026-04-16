@@ -290,11 +290,11 @@ function CalcMACFlow({ onBack, onProfile }: { onBack: () => void; onProfile: () 
                 </label>
                 <div className="flex items-center space-x-4">
                   <input type="range" min="0.1" max="10" step="0.1" value={fgf}
-                    onChange={(e) => setFgf(e.target.value)}
+                    onChange={(e) => setFgf(e.target.value.replace(",", "."))}
                     className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"
                     style={{ accentColor: theme.accent }} />
-                  <input type="number" inputMode="decimal" step="0.1" min="0" value={fgf}
-                    onChange={(e) => setFgf(e.target.value)}
+                  <input type="text" inputMode="decimal" step="0.1" min="0" value={fgf}
+                    onChange={(e) => setFgf(e.target.value.replace(",", "."))}
                     className={`w-20 text-center border-b-2 ${theme.border} focus:outline-none font-bold p-1 text-slate-800`}
                     style={{ fontSize: "16px", MozAppearance: "textfield" }} />
                 </div>
@@ -306,11 +306,11 @@ function CalcMACFlow({ onBack, onProfile }: { onBack: () => void; onProfile: () 
                 </label>
                 <div className="flex items-center space-x-4">
                   <input type="range" min="0.1" max="15" step="0.1" value={conc}
-                    onChange={(e) => setConc(e.target.value)}
+                    onChange={(e) => setConc(e.target.value.replace(",", "."))}
                     className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"
                     style={{ accentColor: theme.accent }} />
-                  <input type="number" inputMode="decimal" step="0.1" min="0" value={conc}
-                    onChange={(e) => setConc(e.target.value)}
+                  <input type="text" inputMode="decimal" step="0.1" min="0" value={conc}
+                    onChange={(e) => setConc(e.target.value.replace(",", "."))}
                     className={`w-20 text-center border-b-2 ${theme.border} focus:outline-none font-bold p-1 text-slate-800`}
                     style={{ fontSize: "16px", MozAppearance: "textfield" }} />
                 </div>
@@ -322,11 +322,11 @@ function CalcMACFlow({ onBack, onProfile }: { onBack: () => void; onProfile: () 
                 </label>
                 <div className="flex items-center space-x-4">
                   <input type="range" min="0.1" max="12" step="0.1" value={dur}
-                    onChange={(e) => setDur(e.target.value)}
+                    onChange={(e) => setDur(e.target.value.replace(",", "."))}
                     className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer"
                     style={{ accentColor: theme.accent }} />
-                  <input type="number" inputMode="decimal" step="0.1" min="0" value={dur}
-                    onChange={(e) => setDur(e.target.value)}
+                  <input type="text" inputMode="decimal" step="0.1" min="0" value={dur}
+                    onChange={(e) => setDur(e.target.value.replace(",", "."))}
                     className={`w-20 text-center border-b-2 ${theme.border} focus:outline-none font-bold p-1 text-slate-800`}
                     style={{ fontSize: "16px", MozAppearance: "textfield" }} />
                 </div>
@@ -465,8 +465,8 @@ function CalcLOCUDose({ onBack, onProfile }: { onBack: () => void; onProfile: ()
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Concentración Final Deseada:</label>
                   <div className="relative flex items-center">
                     <span className="absolute left-4 text-[#BDABF5] font-bold">%</span>
-                    <input type="number" inputMode="decimal" step="0.001" min="0" placeholder="Ej. 0.125" value={finalConc}
-                      onChange={(e) => setFinalConc(e.target.value)}
+                    <input type="text" inputMode="decimal" step="0.001" min="0" placeholder="Ej. 0.125" value={finalConc}
+                      onChange={(e) => setFinalConc(e.target.value.replace(",", "."))}
                       className="w-full py-4 pl-10 pr-4 text-slate-800 font-medium border border-slate-100 rounded-xl focus:border-[#65C4EB] focus:outline-none transition-all"
                       style={{ fontSize: "16px" }} />
                   </div>
@@ -475,8 +475,8 @@ function CalcLOCUDose({ onBack, onProfile }: { onBack: () => void; onProfile: ()
                   <label className="block text-sm font-semibold text-slate-700 mb-2">Volumen Final Deseado:</label>
                   <div className="relative flex items-center">
                     <span className="absolute left-4 text-[#BDABF5] font-bold">ml</span>
-                    <input type="number" inputMode="decimal" step="0.1" min="0" placeholder="Ej. 100" value={finalVol}
-                      onChange={(e) => setFinalVol(e.target.value)}
+                    <input type="text" inputMode="decimal" step="0.1" min="0" placeholder="Ej. 100" value={finalVol}
+                      onChange={(e) => setFinalVol(e.target.value.replace(",", "."))}
                       className="w-full py-4 pl-12 pr-4 text-slate-800 font-medium border border-slate-100 rounded-xl focus:border-[#65C4EB] focus:outline-none transition-all"
                       style={{ fontSize: "16px" }} />
                   </div>
