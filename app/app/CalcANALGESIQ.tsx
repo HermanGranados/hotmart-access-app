@@ -308,6 +308,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-800">
+      <style>{`input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}`}</style>
       <div className="max-w-md mx-auto bg-white min-h-screen sm:border-x border-slate-100 flex flex-col">
 
         <AppHeader title="ANALGESIQ" onBack={onBack} onProfile={onProfile} />
@@ -340,7 +341,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-400 uppercase block">Edad (Años)</label>
-                <input type="number" min="0" value={data.edad}
+                <input type="number" inputMode="decimal" min="0" value={data.edad}
                   onChange={(e) => setData({ ...data, edad: e.target.value })}
                   className="w-full p-3 bg-slate-50 rounded-xl outline-none border border-slate-100"
                   style={{ fontSize: "16px" }} placeholder="Ej: 68" />
@@ -348,7 +349,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-400 uppercase block">Flujo de la Bomba (mL/h)</label>
-                <input type="number" min="0" max="14" step="1" value={data.flujo}
+                <input type="number" inputMode="decimal" min="0" max="14" step="1" value={data.flujo}
                   onKeyDown={(e) => { if ([".", ",", "e", "E", "-", "+"].includes(e.key)) e.preventDefault(); }}
                   onChange={(e) => {
                     const val = e.target.value;
@@ -396,7 +397,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                   </button>
                 </div>
                 {data.useCustomNominal && (
-                  <input type="number" min="1" placeholder="Ej: 150"
+                  <input type="number" inputMode="decimal" min="1" placeholder="Ej: 150"
                     value={data.nominalCustom}
                     onChange={(e) => setData({ ...data, nominalCustom: e.target.value, epi: { ...data.epi, v2: e.target.value } })}
                     className="w-full p-3 bg-[#BDABF5]/10 rounded-xl outline-none border border-[#BDABF5]/30 font-bold text-slate-800 text-center sm:text-left"
@@ -521,7 +522,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
                 <div className="space-y-4">
                   <div>
                     <label className="text-xs font-black text-[#F39169] uppercase tracking-wider block mb-1">CONC. FINAL (C₂ %)</label>
-                    <input type="number" step="0.001" value={data.epi.c2}
+                    <input type="number" inputMode="decimal" step="0.001" value={data.epi.c2}
                       onChange={(e) => setData({ ...data, epi: { ...data.epi, c2: e.target.value } })}
                       className="w-full p-3 bg-white border border-slate-100 rounded-xl font-black text-slate-800 outline-none"
                       style={{ fontSize: "16px" }} placeholder="0.125" />
@@ -598,7 +599,7 @@ export default function CalcANALGESIQ({ onBack, onProfile }: Props) {
 
                   <div>
                     <label className="text-xs font-black text-slate-400 uppercase block mb-1.5 text-center">Vol (mL)</label>
-                    <input type="number" value={f.vol || ""} onChange={(e) => updateF(i, "vol", e.target.value)}
+                    <input type="number" inputMode="decimal" value={f.vol || ""} onChange={(e) => updateF(i, "vol", e.target.value)}
                       className="w-full h-11 p-2.5 bg-white rounded-xl font-black border border-slate-100 outline-none text-center"
                       style={{ fontSize: "16px" }} />
                   </div>
