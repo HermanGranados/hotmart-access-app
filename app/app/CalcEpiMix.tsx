@@ -168,6 +168,59 @@ const antiOptions: Record<string, { label: string; pun: string; res: string }> =
   aspirin: { label: "Aspirina / AINEs (Dosis baja)", pun: "Sin precauciones de tiempo adicionales", res: "Uso normal" },
 };
 
+// Técnicas de inicio
+const techniqueOptions: Record<string, { label: string; short: string; color: string; loadDose: string; note: string }> = {
+  conv: {
+    label: "Epidural Convencional",
+    short: "Convencional",
+    color: "#64748b",
+    loadDose: "15-20 mL",
+    note: "Técnica estándar. Inicio ~10-20 min."
+  },
+  dpe: {
+    label: "Epidural por Punción Dural (DPE)",
+    short: "DPE",
+    color: "#F43F5E",
+    loadDose: "15-20 mL (↓35% dosis efectiva vs. convencional)",
+    note: "Maeda et al. 2024: ED90 29.3 mg vs 45.25 mg epidural convencional. Inicio más rápido, mejor cobertura sacra, sin efectos adversos del CSE."
+  },
+  cse: {
+    label: "Combinada Espinal-Epidural (CSE)",
+    short: "CSE",
+    color: "#7c3aed",
+    loadDose: "Dosis espinal: Bupi 1.5-2.5 mg + Fentanilo 15-25 mcg",
+    note: "Inicio rápido (~2-5 min). Mayor riesgo prurito, bradicardia fetal y bloqueo motor inicial."
+  },
+};
+
+// Modos de mantenimiento
+const maintenanceOptions: Record<string, { label: string; short: string; config: string; note: string }> = {
+  infusion: {
+    label: "Infusión Continua (CEI)",
+    short: "CEI",
+    config: "6-12 mL/h",
+    note: "Técnica tradicional. Mayor consumo de AL y mayor bloqueo motor.",
+  },
+  pcea: {
+    label: "PCEA (Paciente controla)",
+    short: "PCEA",
+    config: "Bolus 10 mL — Lockout 30 min — Sin infusión basal",
+    note: "Roofthooft et al. 2023: PCEA 10 mL no inferior a PIEB en dolor irruptivo y consume ~15 mg menos AL. Mayor autonomía para la paciente.",
+  },
+  pieb: {
+    label: "PIEB (Bolus Automático Programado)",
+    short: "PIEB",
+    config: "Bolus 8-10 mL c/45-60 min — PCEA rescate 5 mL — Lockout 10-30 min",
+    note: "Mayor uniformidad del bloqueo, menos variabilidad del dolor. Velocidad infusión: 250 mL/h.",
+  },
+  pcea_pieb: {
+    label: "PIEB + PCEA (Combinado)",
+    short: "PIEB+PCEA",
+    config: "PIEB 8 mL c/60 min + PCEA 5 mL rescate — Lockout 10-15 min",
+    note: "Combinación óptima. Analgesia consistente + control del paciente.",
+  },
+};
+
 type Props = { onBack: () => void; onProfile: () => void; };
 
 export default function CalcEpiMix({ onBack, onProfile }: Props) {
@@ -183,6 +236,11 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
   const [antiCheck, setAntiCheck] = useState(false);
   const [antiType, setAntiType] = useState("lmwh_pro");
   const [showRefs, setShowRefs] = useState(false);
+  // Nuevos estados
+  const [technique, setTechnique] = useState("conv");
+  const [maintenance, setMaintenance] = useState("pcea");
+  const [showDpeInfo, setShowDpeInfo] = useState(false);
+  const [showMaintenanceInfo, setShowMaintenanceInfo] = useState(false);
 
   const numVol = parseFloat(totalVol);
   const numLa = parseFloat(targetLa);
@@ -199,11 +257,23 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
     else {
       vLa = (numLa * numVol) / laOptions[laType].cStock;
       if (opiType !== "none" && targetOpi !== "") vOpi = (numOpi * numVol) / opiOptions[opiType].cStock;
+      if (adjType !== "none" && targetAdj !== "") 
       if (adjType !== "none" && targetAdj !== "") vAdj = (numAdj * numVol) / adjOptions[adjType].cStock;
       vSaline = numVol - (vLa + vOpi + vAdj);
       if (vSaline < 0) errorMsg = "El volumen de los componentes excede el volumen total deseado.";
     }
   }
+
+  // Indicador de riesgo de bloqueo motor
+  const motorRisk = useMemo(() => {
+    if (!targetLa || !numLa) return null;
+    const isLido = laType.startsWith("lido");
+    if (isLido) return null;
+    if (numLa <= 0.0625) return { level: "bajo", color: "text-emerald-700", bg: "bg-emerald-50 border-emerald-200", label: "Bajo riesgo de bloqueo motor", detail: "Concentración ultra-baja (≤0.0625%). Evidencia sólida de analgesia equivalente con mínimo bloqueo motor." };
+    if (numLa <= 0.1) return { level: "moderado", color: "text-amber-700", bg: "bg-amber-50 border-amber-200", label: "Riesgo moderado de bloqueo motor", detail: "Concentración baja (≤0.1%). Riesgo moderado. Permite movilidad en la mayoría de pacientes." };
+    if (numLa <= 0.125) return { level: "alto", color: "text-orange-700", bg: "bg-orange-50 border-orange-200", label: "Riesgo elevado de bloqueo motor", detail: "Concentración mayor a la recomendada para analgesia de parto. Puede limitar la deambulación." };
+    return { level: "muy-alto", color: "text-red-700", bg: "bg-red-50 border-red-200", label: "Alto riesgo de bloqueo motor", detail: "Concentración anestésica, no analgésica. Evalúe si la indicación es correcta para esta concentración." };
+  }, [targetLa, numLa, laType]);
 
   const showMotorWarning = targetLa !== "" && numLa > laOptions[laType].limit;
 
@@ -221,11 +291,12 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
     setOpiType("fenta"); setAdjType("none");
     setAntiCheck(false); setAntiType("lmwh_pro");
     setIndication("labor"); setLaType("bupi_05");
+    setTechnique("conv"); setMaintenance("pcea");
   }
 
   const getLaSuggestion = (type: string) => {
-    if (type.startsWith("bupi")) return "Sugerencia: 0.0625% - 0.125%";
-    if (type.startsWith("levo")) return "Sugerencia: 0.0625% - 0.125%";
+    if (type.startsWith("bupi")) return "Sugerencia: 0.0625% · 0.1% · 0.125%";
+    if (type.startsWith("levo")) return "Sugerencia: 0.0625% · 0.1% · 0.125%";
     if (type.startsWith("ropi")) return "Sugerencia: 0.1% - 0.2%";
     if (type.startsWith("lido")) return "Sugerencia: 0.5% - 1%";
     return "";
@@ -251,6 +322,8 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
     if (adjType !== "none" && vAdj > 0) n++;
     return n;
   };
+
+  const isLaborIndication = indication === "labor";
 
   return (
     <div className="min-h-screen bg-white font-sans text-slate-800">
@@ -336,6 +409,154 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
               </div>
             </div>
 
+            {/* ── TÉCNICA DE INICIO ─────────────────────────────────── */}
+            {isLaborIndication && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 border-b border-slate-100 pb-2 font-black uppercase text-sm text-slate-700">
+                  <SyringeIcon className="w-5 h-5 text-[#F43F5E]" />
+                  Técnica de Inicio
+                </div>
+
+                {/* Selector de técnica */}
+                <div className="grid grid-cols-3 gap-2">
+                  {Object.entries(techniqueOptions).map(([key, opt]) => (
+                    <button key={key} onClick={() => setTechnique(key)}
+                      className={`py-3 px-2 rounded-xl text-xs font-black uppercase tracking-wide border-2 transition-all ${
+                        technique === key
+                          ? "border-[#F43F5E] bg-rose-50 text-[#F43F5E]"
+                          : "border-slate-100 bg-white text-slate-400 hover:border-slate-200"
+                      }`}>
+                      {opt.short}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Info de la técnica seleccionada */}
+                <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest">{techniqueOptions[technique].label}</p>
+                  <p className="text-sm font-bold text-[#F43F5E]">{techniqueOptions[technique].loadDose}</p>
+                  <p className="text-xs text-slate-500 leading-relaxed">{techniqueOptions[technique].note}</p>
+                </div>
+
+                {/* DPE — Desplegable explicativo */}
+                {technique === "dpe" && (
+                  <div className="rounded-2xl border border-rose-100 overflow-hidden shadow-sm">
+                    <button
+                      onClick={() => setShowDpeInfo(!showDpeInfo)}
+                      className="w-full flex items-center justify-between p-4 text-left hover:bg-rose-50/50 transition-colors bg-white">
+                      <div className="flex items-center gap-2">
+                        <InfoIcon className="w-5 h-5 text-[#F43F5E]" />
+                        <span className="text-sm font-bold text-[#F43F5E]">¿Qué es la Epidural por Punción Dural?</span>
+                      </div>
+                      <ChevronDownIcon className={`w-5 h-5 text-[#F43F5E] transition-transform duration-300 ${showDpeInfo ? "rotate-180" : ""}`} />
+                    </button>
+                    {showDpeInfo && (
+                      <div className="px-5 pb-5 pt-2 border-t border-rose-100 bg-rose-50/30 space-y-4 text-xs text-slate-700">
+
+                        <div>
+                          <p className="font-black uppercase tracking-wide text-[#F43F5E] mb-1">¿Qué es?</p>
+                          <p className="leading-relaxed">
+                            La EPD es una técnica neuraxial intermedia entre la epidural convencional y la CSE. Se identifica el espacio epidural con la aguja de Tuohy y luego, a través de ella, se introduce una aguja espinal (25G-27G) para puncionar la duramadre y confirmar la posición con flujo libre de LCR. <strong>No se inyecta medicamento intratecal</strong>. Se retira la aguja espinal y se avanza el catéter epidural. Toda la analgesia se administra por vía epidural.
+                          </p>
+                        </div>
+
+                        <div>
+                          <p className="font-black uppercase tracking-wide text-[#F43F5E] mb-1">¿Por qué funciona mejor?</p>
+                          <p className="leading-relaxed">
+                            La punción de la dura crea un microorificio que actúa como conducto epidural-intratecal. Una pequeña fracción del anestésico administrado por vía epidural migra al espacio intratecal, mejorando la calidad del bloqueo sin los riesgos de una dosis espinal directa.
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3">
+                          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+                            <p className="font-black uppercase tracking-wide text-emerald-700 mb-2 text-[10px]">Ventajas vs. Epidural Convencional</p>
+                            <ul className="space-y-1 text-emerald-800 leading-relaxed">
+                              <li>✓ Inicio más rápido de analgesia</li>
+                              <li>✓ Mejor cobertura sacra y bilateral</li>
+                              <li>✓ Menor consumo total de AL (~35%)</li>
+                              <li>✓ Confirma posición mediana de la aguja</li>
+                            </ul>
+                          </div>
+                          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+                            <p className="font-black uppercase tracking-wide text-blue-700 mb-2 text-[10px]">Ventajas vs. CSE</p>
+                            <ul className="space-y-1 text-blue-800 leading-relaxed">
+                              <li>✓ Sin bradicardia fetal por dosis espinal</li>
+                              <li>✓ Sin prurito severo por opioides IT</li>
+                              <li>✓ Sin hipotensión materna brusca</li>
+                              <li>✓ Sin riesgo de bloqueo espinal alto</li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        <div className="bg-slate-100 rounded-xl p-3">
+                          <p className="font-black uppercase tracking-wide text-slate-600 mb-1 text-[10px]">Evidencia Clave</p>
+                          <p className="leading-relaxed text-slate-600">
+                            Maeda et al. (Anesth Analg 2024): El ED90 de bupivacaína con DPE fue <strong>29.3 mg</strong> vs <strong>45.25 mg</strong> con epidural convencional — una reducción del 35% en la dosis efectiva. Zang et al. (Anaesthesia 2024): La calidad de analgesia con DPE fue comparable a CSE sin diferencias en efectos adversos.
+                          </p>
+                        </div>
+
+                        <p className="text-[10px] text-slate-400 font-medium">
+                          Ref: Maeda et al. Anesth Analg 2024 · Zang et al. Anaesthesia 2024 · Uçar et al. BMC Anesthesiology 2025
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* CSE — advertencia */}
+                {technique === "cse" && (
+                  <div className="bg-violet-50 p-4 rounded-xl border border-violet-200 flex items-start gap-2">
+                    <AlertTriangleIcon className="w-5 h-5 text-violet-500 shrink-0 mt-0.5" />
+                    <div className="text-xs text-violet-800 space-y-1">
+                      <p className="font-bold">Recuerde con CSE:</p>
+                      <p>La dosis intratecal produce bloqueo rápido pero puede causar prurito, hipotensión y cambios en FCF. Monitorizar durante los primeros 30 min tras la dosis espinal. El catéter epidural se usa para mantenimiento una vez que la dosis espinal disminuya.</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── MODO DE MANTENIMIENTO ── */}
+                <div className="space-y-3 pt-2">
+                  <p className="text-xs font-black text-slate-500 uppercase tracking-widest">Modo de Mantenimiento</p>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    {Object.entries(maintenanceOptions).map(([key, opt]) => (
+                      <button key={key} onClick={() => setMaintenance(key)}
+                        className={`py-3 px-2 rounded-xl text-xs font-black uppercase tracking-wide border-2 transition-all ${
+                          maintenance === key
+                            ? "border-[#F43F5E] bg-rose-50 text-[#F43F5E]"
+                            : "border-slate-100 bg-white text-slate-400 hover:border-slate-200"
+                        }`}>
+                        {opt.short}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+                    <button
+                      onClick={() => setShowMaintenanceInfo(!showMaintenanceInfo)}
+                      className="w-full flex items-center justify-between p-4 text-left hover:bg-slate-50 transition-colors bg-white">
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-xs font-black text-[#F43F5E] uppercase tracking-wide">{maintenanceOptions[maintenance].label}</span>
+                        <span className="text-xs text-slate-500 font-medium">{maintenanceOptions[maintenance].config}</span>
+                      </div>
+                      <ChevronDownIcon className={`w-5 h-5 text-slate-400 shrink-0 transition-transform duration-300 ${showMaintenanceInfo ? "rotate-180" : ""}`} />
+                    </button>
+                    {showMaintenanceInfo && (
+                      <div className="px-4 pb-4 pt-2 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-600 leading-relaxed space-y-2">
+                        <p>{maintenanceOptions[maintenance].note}</p>
+                        {maintenance === "pcea" && (
+                          <p className="text-[10px] text-slate-400">Ref: Roofthooft et al. Anaesthesia 2023 (n=360)</p>
+                        )}
+                        {(maintenance === "pieb" || maintenance === "pcea_pieb") && (
+                          <p className="text-[10px] text-slate-400">Ref: Roofthooft et al. Anaesthesia 2023 · Song et al. Anesth Analg 2021</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Mezcla de fármacos */}
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-2">
@@ -361,20 +582,37 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
                 </select>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Concentración Deseada (%)</label>
-                  <input type="text" inputMode="decimal" step="0.001" min="0" placeholder="Ej. 0.1" value={targetLa}
+                  <input type="text" inputMode="decimal" step="0.001" min="0" placeholder="Ej. 0.0625" value={targetLa}
                     onChange={(e) => setTargetLa(e.target.value.replace(",", "."))}
                     className="w-full py-3 px-4 text-center text-slate-800 font-black border border-rose-100 bg-white rounded-xl focus:border-[#F43F5E] focus:outline-none transition-all placeholder:text-slate-300"
                     style={{ fontSize: "18px", MozAppearance: "textfield" }} />
                   <p className="text-[10px] text-slate-400 font-medium mt-1.5 text-center">{getLaSuggestion(laType)}</p>
                 </div>
-                {showMotorWarning && (
-                  <div className="bg-amber-50 p-3 rounded-lg border border-amber-200 flex items-start gap-2">
-                    <AlertTriangleIcon className="w-5 h-5 text-amber-500 shrink-0" />
-                    <p className="text-xs text-amber-800 font-medium">
-                      <strong>Atención:</strong> Concentración mayor a la recomendada ({laOptions[laType].limit}%). Riesgo aumentado de bloqueo motor.
+
+                {/* Indicador de riesgo de bloqueo motor */}
+                {motorRisk && (
+                  <div className={`p-3 rounded-xl border flex items-start gap-2 ${motorRisk.bg}`}>
+                    <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                      motorRisk.level === "bajo" ? "bg-emerald-500" :
+                      motorRisk.level === "moderado" ? "bg-amber-500" :
+                      motorRisk.level === "alto" ? "bg-orange-500" : "bg-red-500"
+                    }`} />
+                    <div>
+                      <p className={`text-xs font-black uppercase tracking-wide ${motorRisk.color}`}>{motorRisk.label}</p>
+                      <p className={`text-xs mt-0.5 leading-relaxed ${motorRisk.color} opacity-80`}>{motorRisk.detail}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Nota concentración ultra-baja */}
+                {targetLa !== "" && numLa <= 0.0625 && !laType.startsWith("lido") && (
+                  <div className="bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                    <p className="text-xs text-emerald-800 font-semibold leading-relaxed">
+                      <strong>✦ Concentración ultra-baja:</strong> Halliday et al. (Anaesthesia 2022) y Uçar et al. (BMC Anesthesiology 2025) confirman que ≤0.0625% proporciona analgesia equivalente a concentraciones mayores, con menor consumo total de AL y menor bloqueo motor. Especialmente efectiva combinada con opioide (Fentanilo 2 mcg/mL).
                     </p>
                   </div>
                 )}
+
                 {laType.startsWith("lido") && (
                   <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 space-y-3">
                     <div className="flex items-start gap-2">
@@ -396,6 +634,11 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
                         <span className="font-black uppercase tracking-wide block mb-0.5">Anestesia de piel</span>
                         Lidocaína 1% (Xylocaína) — 2 mL antes de la punción epidural para insensibilizar la zona.
                       </div>
+                    </div>
+                    <div className="bg-blue-100/60 rounded-lg p-3 mt-1">
+                      <p className="text-xs text-blue-800 font-medium leading-relaxed">
+                        <strong>Sobre movilidad materna:</strong> Las guías actuales (COMET 2002, ESRA) prefieren anestésicos de larga duración a bajas concentraciones (bupivacaína/ropivacaína ≤0.1%) para preservar la movilidad y reducir el parto instrumental. Las "epidurales móviles" con mezclas de baja concentración han demostrado reducir la tasa de parto vaginal instrumental.
+                      </p>
                     </div>
                   </div>
                 )}
@@ -449,7 +692,7 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
                 )}
               </div>
 
-              {/* Volumen nominal — tarjeta grande */}
+              {/* Volumen nominal */}
               <div className="bg-white rounded-2xl border-2 border-rose-100 shadow-sm overflow-hidden focus-within:border-[#F43F5E] transition-all">
                 <div className="bg-rose-50/60 px-6 py-3 border-b border-rose-100">
                   <p className="text-xs font-black text-slate-500 uppercase tracking-widest text-center">Volumen Nominal Total</p>
@@ -463,7 +706,7 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
                 </div>
               </div>
 
-              {/* Velocidad — slider + input al lado */}
+              {/* Velocidad */}
               <div className="bg-rose-50/40 p-5 rounded-2xl border-2 border-rose-100 shadow-sm space-y-3">
                 <label className="block text-sm font-bold text-[#F43F5E] uppercase tracking-wide">Velocidad de Infusión Continua</label>
                 <div className="flex items-center gap-4">
@@ -554,6 +797,11 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
                         {opiType !== "none" ? ` + OPI ${targetOpi} ${opiOptions[opiType].unit.toUpperCase()}` : ""}
                         {adjType !== "none" ? ` + ADJ ${targetAdj} ${adjOptions[adjType].unit.toUpperCase()}` : ""}
                       </p>
+                      {isLaborIndication && (
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center mt-1">
+                          {techniqueOptions[technique].short} · {maintenanceOptions[maintenance].short}
+                        </p>
+                      )}
                       {durationDisplay !== null && (
                         <div className="w-full flex flex-col items-center mt-5 pt-4 border-t border-white/10">
                           <p className="text-[11px] text-slate-300 font-bold uppercase tracking-widest text-center">
@@ -592,6 +840,11 @@ export default function CalcEpiMix({ onBack, onProfile }: Props) {
                     <li><strong>Epidural anesthesia – technique, indications and clinical use.</strong> The Anesthesia Guide. Kai Knudsen (2025).</li>
                     <li><strong>Epidural analgesia for labor: Current techniques.</strong> Local and Regional Anesthesia. M. Silva, S. Halpern (2010).</li>
                     <li><strong>Regional anesthesia in the patient receiving antithrombotic or thrombolytic therapy: ASRA Guidelines.</strong> S. Kopp et al. (2025).</li>
+                    <li><strong>Labor analgesia initiation with DPE vs. conventional epidural: ED90 of bupivacaine.</strong> Maeda et al. Anesth Analg 2024.</li>
+                    <li><strong>CSE vs. DPE for labour analgesia: a randomised controlled trial.</strong> Zang et al. Anaesthesia 2024.</li>
+                    <li><strong>High-volume PCEA vs. PIEB for labour analgesia.</strong> Roofthooft et al. Anaesthesia 2023.</li>
+                    <li><strong>Ultra-low, low and high concentration local anaesthetic for labour epidural: network meta-analysis.</strong> Halliday et al. Anaesthesia 2022.</li>
+                    <li><strong>Effects of different bupivacaine concentrations with DPE for labor analgesia.</strong> Uçar et al. BMC Anesthesiology 2025.</li>
                   </ol>
                 </div>
               )}
