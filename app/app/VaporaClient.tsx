@@ -229,20 +229,23 @@ function AppHeader({ title, onBack, onProfile }: { title: string; onBack: () => 
 // ── Calculadoras ───────────────────────────────────────────────────────────
 
 function CalcMACFlow({ onBack, onProfile }: { onBack: () => void; onProfile: () => void }) {
-  const [anesthetic, setAnesthetic] = useState<"Sevoflurano" | "Desflurano">("Sevoflurano");
+  const [anesthetic, setAnesthetic] = useState<"Sevoflurano" | "Desflurano" | "Isoflurano">("Sevoflurano");
   const [fgf, setFgf] = useState("1.0");
   const [conc, setConc] = useState("2.0");
   const [dur, setDur] = useState("1.0");
 
   const isSevo = anesthetic === "Sevoflurano";
+  const isDesf = anesthetic === "Desflurano";
+  const isIso  = anesthetic === "Isoflurano";
   const theme = {
-    bg: isSevo ? "bg-[#F9CE6F]" : "bg-[#65C4EB]",
-    border: isSevo ? "border-[#F9CE6F]" : "border-[#65C4EB]",
-    accent: isSevo ? "#F9CE6F" : "#65C4EB",
-    billing: isSevo ? "20 ml/hora" : "35 ml/hora",
+    bg: isSevo ? "bg-[#F9CE6F]" : isDesf ? "bg-[#65C4EB]" : "bg-[#A78BFA]",
+    border: isSevo ? "border-[#F9CE6F]" : isDesf ? "border-[#65C4EB]" : "border-[#A78BFA]",
+    accent: isSevo ? "#F9CE6F" : isDesf ? "#65C4EB" : "#A78BFA",
+    billing: isSevo ? "20 ml/hora" : isDesf ? "35 ml/hora" : "10 ml/hora",
     btnSevo: isSevo ? "bg-[#F9CE6F] text-slate-900" : "bg-slate-100 text-slate-500",
-    btnDesf: !isSevo ? "bg-[#65C4EB] text-slate-900" : "bg-slate-100 text-slate-500",
-    textGradient: isSevo ? "from-[#F9CE6F] to-[#F39169]" : "from-[#65C4EB] to-[#BDABF5]",
+    btnDesf: isDesf ? "bg-[#65C4EB] text-slate-900" : "bg-slate-100 text-slate-500",
+    btnIso:  isIso  ? "bg-[#A78BFA] text-white"     : "bg-slate-100 text-slate-500",
+    textGradient: isSevo ? "from-[#F9CE6F] to-[#F39169]" : isDesf ? "from-[#65C4EB] to-[#BDABF5]" : "from-[#A78BFA] to-[#7C3AED]",
   };
 
   const numFgf = parseFloat(fgf) || 0;
@@ -279,6 +282,10 @@ function CalcMACFlow({ onBack, onProfile }: { onBack: () => void; onProfile: () 
               <button onClick={() => { setAnesthetic("Desflurano"); setConc("6.0"); }}
                 className={`flex-1 py-3 text-sm font-semibold transition-colors ${theme.btnDesf}`}>
                 Desflurano
+              </button>
+              <button onClick={() => { setAnesthetic("Isoflurano"); setConc("1.2"); }}
+                className={`flex-1 py-3 text-sm font-semibold transition-colors ${theme.btnIso}`}>
+                Isoflurano
               </button>
             </div>
 
