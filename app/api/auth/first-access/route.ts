@@ -6,7 +6,7 @@ export async function POST(req: Request) {
   try {
     const { email, document, password } = await req.json();
 
-    if (!email || !document || !password) {
+    if (!email || !password) {
       return Response.json(
         { ok: false, step: "validacion-inicial", error: "Faltan datos" },
         { status: 400 }
@@ -22,7 +22,6 @@ export async function POST(req: Request) {
 
     const supabaseAdmin = createSupabaseAdminClient();
     const cleanEmail = String(email).trim().toLowerCase();
-    const documentHash = hashDocument(String(document));
 
     // Verificar buyer
     const { data: buyer, error: buyerError } = await supabaseAdmin
@@ -38,11 +37,21 @@ export async function POST(req: Request) {
       );
     }
 
-    if (buyer.document_hash !== documentHash) {
-      return Response.json(
-        { ok: false, step: "validar-documento", error: "Documento incorrecto" },
-        { status: 401 }
-      );
+    // ✅ Validar documento solo si el buyer lo tiene registrado
+    if (buyer.document_hash) {
+      if (!document) {
+        return Response.json(
+          { ok: false, step: "validar-documento", error: "Se requiere número de documento" },
+          { status: 401 }
+        );
+      }
+      const documentHash = hashDocument(String(document));
+      if (buyer.document_hash !== documentHash) {
+        return Response.json(
+          { ok: false, step: "validar-documento", error: "Documento incorrecto" },
+          { status: 401 }
+        );
+      }
     }
 
     // ✅ Obtener la compra más reciente activa
@@ -52,7 +61,7 @@ export async function POST(req: Request) {
       .eq("buyer_id", buyer.id)
       .eq("status", "APPROVED")
       .eq("subscription_status", "active")
-      .order("approved_at", { ascending: false })  // ✅ más reciente primero
+      .order("approved_at", { ascending: false })
       .limit(1)
       .maybeSingle();
 
@@ -70,14 +79,14 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ getUserByEmail en lugar de listUsers() + find()
-const { data: usersData } = await supabaseAdmin.auth.admin.listUsers({
-  page: 1,
-  perPage: 1000,
-});
-const existingUser = usersData?.users?.find(
-  (u) => u.email?.toLowerCase() === cleanEmail
-) ?? null;
+    // Buscar si el usuario ya existe en Auth
+    const { data: usersData } = await supabaseAdmin.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000,
+    });
+    const existingUser = usersData?.users?.find(
+      (u) => u.email?.toLowerCase() === cleanEmail
+    ) ?? null;
 
     if (!existingUser) {
       const { error: createUserError } = await supabaseAdmin.auth.admin.createUser({
