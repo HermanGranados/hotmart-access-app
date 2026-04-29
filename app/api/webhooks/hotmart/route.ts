@@ -94,7 +94,8 @@ export async function POST(req: Request) {
     }
 
     return Response.json({ ok: true });
-  } catch (error) {
-    return Response.json({ ok: false, error: "Error interno" }, { status: 500 });
-  }
+} catch (error) {
+  console.error("Webhook error:", error);
+  return Response.json({ ok: false, error: String(error) }, { status: 500 });
+}
 }
