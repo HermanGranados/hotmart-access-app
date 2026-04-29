@@ -22,17 +22,6 @@ function LockIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function IdCardIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="M8 10h.01" />
-      <path d="M12 10h5" />
-      <path d="M8 14h8" />
-    </svg>
-  );
-}
-
 function EyeIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -56,7 +45,6 @@ function EyeOffIcon(props: React.SVGProps<SVGSVGElement>) {
 export default function LoginPage() {
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
-  const [document, setDocument] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -91,10 +79,15 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/first-access", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim(), document: document.trim(), password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
       const data = await res.json();
-      setMessage(data.message || data.error || "Ocurrió un error");
+      if (data.ok) {
+        setMessage("✅ " + (data.message || "Acceso creado. Ya puedes iniciar sesión."));
+        setMode("login");
+      } else {
+        setMessage(data.error || "Ocurrió un error");
+      }
     } catch {
       setMessage("No se pudo conectar con el servidor");
     } finally {
@@ -124,7 +117,7 @@ export default function LoginPage() {
     mode === "login"
       ? "Inicia sesión con tu correo"
       : mode === "first"
-      ? "Activa tu acceso con tu correo electronico y numero de documento con el que hiciste tu compra en Hotmart"
+      ? "Activa tu acceso con el correo con el que hiciste tu compra en Hotmart"
       : "Recupera tu contraseña";
 
   const inputBase =
@@ -198,19 +191,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Documento (solo modo activar) */}
-            {mode === "first" && (
-              <div className={inputBase}>
-                <IdCardIcon className={iconBase} />
-                <input
-                  placeholder="Número de documento"
-                  value={document}
-                  onChange={(e) => setDocument(e.target.value)}
-                  className="w-full bg-transparent text-[15px] font-medium text-slate-800 outline-none placeholder:text-slate-400 placeholder:font-normal"
-                />
-              </div>
-            )}
-
             {/* Contraseña */}
             {mode !== "forgot" && (
               <div className={inputBase}>
@@ -277,7 +257,11 @@ export default function LoginPage() {
 
             {/* Mensaje de respuesta */}
             {message && (
-              <div className="rounded-2xl border border-white/70 bg-white/70 px-4 py-3 text-sm text-slate-600 shadow-sm">
+              <div className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
+                message.startsWith("✅")
+                  ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                  : "border-white/70 bg-white/70 text-slate-600"
+              }`}>
                 {message}
               </div>
             )}
