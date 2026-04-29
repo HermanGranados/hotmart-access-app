@@ -16,7 +16,24 @@ export async function POST(req: Request) {
   }
 
   try {
-    const payload = await req.json();
+    // ✅ Manejo robusto del body (json o form-encoded)
+    const contentType = req.headers.get("content-type") || "";
+    let payload: any;
+
+    if (contentType.includes("application/json")) {
+      payload = await req.json();
+    } else {
+      const text = await req.text();
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        payload = Object.fromEntries(new URLSearchParams(text));
+      }
+    }
+
+    // ✅ Log completo para diagnóstico
+    console.log("Hotmart payload recibido:", JSON.stringify(payload));
+
     const email = payload?.data?.buyer?.email?.toLowerCase();
     const name = payload?.data?.buyer?.name;
     const document = payload?.data?.buyer?.document;
@@ -25,11 +42,13 @@ export async function POST(req: Request) {
     const productName = payload?.data?.product?.name;
     const productId = payload?.data?.product?.id;
 
+    console.log("Campos extraídos:", { email, transaction, status, productId, productName });
+
     if (!email || !transaction) {
+      console.error("Datos incompletos:", { email, transaction });
       return Response.json({ ok: false, error: "Datos incompletos" }, { status: 400 });
     }
 
-    // ✅ Usar supabaseAdmin en lugar del cliente anónimo
     const supabaseAdmin = createSupabaseAdminClient();
 
     let documentHash = null;
@@ -57,6 +76,7 @@ export async function POST(req: Request) {
         .single();
 
       if (buyerError || !newBuyer) {
+        console.error("Error creando buyer:", buyerError);
         return Response.json({ ok: false, error: "No se pudo crear buyer" }, { status: 500 });
       }
       buyer = newBuyer;
@@ -90,12 +110,13 @@ export async function POST(req: Request) {
     });
 
     if (purchaseError) {
+      console.error("Error en upsert purchases:", purchaseError);
       return Response.json({ ok: false, error: purchaseError.message }, { status: 500 });
     }
 
     return Response.json({ ok: true });
-} catch (error) {
-  console.error("Webhook error:", error);
-  return Response.json({ ok: false, error: String(error) }, { status: 500 });
-}
+  } catch (error) {
+    console.error("Webhook error:", error);
+    return Response.json({ ok: false, error: String(error) }, { status: 500 });
+  }
 }
