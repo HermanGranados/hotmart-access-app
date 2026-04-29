@@ -2,6 +2,11 @@
 import { hashDocument } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
+// ✅ Mapeo de IDs reales de Hotmart a IDs internos
+const PRODUCT_ID_MAP: Record<string, string> = {
+  "7526614": "vapora-anual-001",
+};
+
 function addOneYear(date = new Date()) {
   const d = new Date(date);
   d.setFullYear(d.getFullYear() + 1);
@@ -9,14 +14,12 @@ function addOneYear(date = new Date()) {
 }
 
 export async function POST(req: Request) {
-  // ✅ Verificación de firma Hotmart
   const hottok = req.headers.get("x-hotmart-hottok");
   if (hottok !== process.env.HOTMART_HOTTOK) {
     return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    // ✅ Manejo robusto del body (json o form-encoded)
     const contentType = req.headers.get("content-type") || "";
     let payload: any;
 
@@ -31,7 +34,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // ✅ Log completo para diagnóstico
     console.log("Hotmart payload recibido:", JSON.stringify(payload));
 
     const email = payload?.data?.buyer?.email?.toLowerCase();
@@ -40,9 +42,12 @@ export async function POST(req: Request) {
     const transaction = payload?.data?.purchase?.transaction;
     const status = payload?.data?.purchase?.status;
     const productName = payload?.data?.product?.name;
-    const productId = payload?.data?.product?.id;
+    const rawProductId = String(payload?.data?.product?.id ?? "");
 
-    console.log("Campos extraídos:", { email, transaction, status, productId, productName });
+    // ✅ Mapear ID de Hotmart a ID interno
+    const productId = PRODUCT_ID_MAP[rawProductId] ?? rawProductId;
+
+    console.log("Campos extraídos:", { email, transaction, status, rawProductId, productId });
 
     if (!email || !transaction) {
       console.error("Datos incompletos:", { email, transaction });
@@ -53,7 +58,7 @@ export async function POST(req: Request) {
 
     let documentHash = null;
     if (document) {
-      documentHash = hashDocument(document);
+      documentHash = hashDocument(String(document));
     }
 
     // Buscar o crear buyer
@@ -97,19 +102,19 @@ export async function POST(req: Request) {
       approvedAt = null;
     }
 
- const { error: purchaseError } = await supabaseAdmin
-  .from("purchases")
-  .upsert({
-    hotmart_transaction: transaction,
-    buyer_id: buyer.id,
-    product_id: productId,
-    product_name: productName,
-    status,
-    approved_at: approvedAt,
-    expires_at: expiresAt,
-    subscription_status: subscriptionStatus,
-    raw_payload: payload,
-  }, { onConflict: "hotmart_transaction" });
+    const { error: purchaseError } = await supabaseAdmin
+      .from("purchases")
+      .upsert({
+        hotmart_transaction: transaction,
+        buyer_id: buyer.id,
+        product_id: productId,
+        product_name: productName,
+        status,
+        approved_at: approvedAt,
+        expires_at: expiresAt,
+        subscription_status: subscriptionStatus,
+        raw_payload: payload,
+      }, { onConflict: "hotmart_transaction" });
 
     if (purchaseError) {
       console.error("Error en upsert purchases:", purchaseError);
