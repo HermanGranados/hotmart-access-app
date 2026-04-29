@@ -578,9 +578,9 @@ type Props = {
 export default function VaporaClient({ isPremium, userEmail, planName, daysRemaining }: Props) {
   const [vistaActual, setVistaActual] = useState<"home" | "mac" | "locu" | "analgesiq" | "hipersaline" | "epimix">("home");
   const [showProfile, setShowProfile] = useState(false);
-  const [showTrialBanner, setShowTrialBanner] = useState(
-    daysRemaining !== null
-  );
+const [showTrialBanner, setShowTrialBanner] = useState(
+  daysRemaining !== null && daysRemaining <= 30
+);
   const [showChangePassword, setShowChangePassword] = useState(false);
   const [cpPassword, setCpPassword] = useState("");
   const [cpConfirm, setCpConfirm] = useState("");
