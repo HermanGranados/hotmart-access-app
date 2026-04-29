@@ -97,17 +97,19 @@ export async function POST(req: Request) {
       approvedAt = null;
     }
 
-    const { error: purchaseError } = await supabaseAdmin.from("purchases").upsert({
-      hotmart_transaction: transaction,
-      buyer_id: buyer.id,
-      product_id: productId,
-      product_name: productName,
-      status,
-      approved_at: approvedAt,
-      expires_at: expiresAt,
-      subscription_status: subscriptionStatus,
-      raw_payload: payload,
-    });
+ const { error: purchaseError } = await supabaseAdmin
+  .from("purchases")
+  .upsert({
+    hotmart_transaction: transaction,
+    buyer_id: buyer.id,
+    product_id: productId,
+    product_name: productName,
+    status,
+    approved_at: approvedAt,
+    expires_at: expiresAt,
+    subscription_status: subscriptionStatus,
+    raw_payload: payload,
+  }, { onConflict: "hotmart_transaction" });
 
     if (purchaseError) {
       console.error("Error en upsert purchases:", purchaseError);
