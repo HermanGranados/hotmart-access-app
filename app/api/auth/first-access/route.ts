@@ -1,10 +1,9 @@
 // app/api/auth/first-access/route.ts
-import { hashDocument } from "@/lib/auth";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   try {
-    const { email, document, password } = await req.json();
+    const { email, password } = await req.json();
 
     if (!email || !password) {
       return Response.json(
@@ -32,29 +31,12 @@ export async function POST(req: Request) {
 
     if (buyerError || !buyer) {
       return Response.json(
-        { ok: false, step: "buscar-buyer", error: "Comprador no encontrado" },
+        { ok: false, step: "buscar-buyer", error: "Comprador no encontrado. Verifica que el correo sea el mismo con el que hiciste tu compra en Hotmart." },
         { status: 404 }
       );
     }
 
-    // ✅ Validar documento solo si el buyer lo tiene registrado
-    if (buyer.document_hash) {
-      if (!document) {
-        return Response.json(
-          { ok: false, step: "validar-documento", error: "Se requiere número de documento" },
-          { status: 401 }
-        );
-      }
-      const documentHash = hashDocument(String(document));
-      if (buyer.document_hash !== documentHash) {
-        return Response.json(
-          { ok: false, step: "validar-documento", error: "Documento incorrecto" },
-          { status: 401 }
-        );
-      }
-    }
-
-    // ✅ Obtener la compra más reciente activa
+    // Obtener la compra más reciente activa
     const { data: purchase, error: purchaseError } = await supabaseAdmin
       .from("purchases")
       .select("*")
@@ -67,14 +49,14 @@ export async function POST(req: Request) {
 
     if (purchaseError || !purchase) {
       return Response.json(
-        { ok: false, step: "buscar-compra", error: "No tienes una suscripción activa" },
+        { ok: false, step: "buscar-compra", error: "No tienes una suscripción activa. Si acabas de comprar, espera unos minutos e intenta de nuevo." },
         { status: 403 }
       );
     }
 
     if (!purchase.expires_at || new Date(purchase.expires_at) < new Date()) {
       return Response.json(
-        { ok: false, step: "validar-expiracion", error: "Tu acceso ha expirado" },
+        { ok: false, step: "validar-expiracion", error: "Tu acceso ha expirado." },
         { status: 403 }
       );
     }
