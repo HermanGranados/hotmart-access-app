@@ -5,6 +5,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import CalcANALGESIQ from "./CalcANALGESIQ";
 import CalcHiperSaline from "./CalcHiperSaline";
 import CalcEpiMix from "./CalcEpiMix";
+import CalcInfusiLat from "./CalcInfusiLat";
 
 function ActivityIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -571,12 +572,13 @@ async function handleLogout() {
 type Props = {
   isPremium: boolean;
   userEmail: string;
+  userId: string;
   planName: string | null;
   daysRemaining: number | null;
 };
 
-export default function VaporaClient({ isPremium, userEmail, planName, daysRemaining }: Props) {
-  const [vistaActual, setVistaActual] = useState<"home" | "mac" | "locu" | "analgesiq" | "hipersaline" | "epimix">("home");
+export default function VaporaClient({ isPremium, userEmail, userId, planName, daysRemaining }: Props) {
+  const [vistaActual, setVistaActual] = useState<"home" | "mac" | "locu" | "analgesiq" | "hipersaline" | "epimix" | "infusilat">("home");
   const [showProfile, setShowProfile] = useState(false);
 const [showTrialBanner, setShowTrialBanner] = useState(
   daysRemaining !== null && daysRemaining <= 30
@@ -699,6 +701,35 @@ const [showTrialBanner, setShowTrialBanner] = useState(
                     </div>
                   </div>
                 </button>
+
+                {/* InfusiLat — tarjeta premium compacta */}
+<button
+  onClick={() => { if (isPremium) setVistaActual("infusilat"); }}
+  className="w-full rounded-[20px] overflow-hidden text-left active:scale-[0.99] transition-all mt-3"
+  style={{ background: "linear-gradient(135deg,#0284c7,#38bdf8,#7dd3fc)", boxShadow: "0 8px 28px rgba(2,132,199,0.22)", padding: "1.5px" }}>
+  <div className="rounded-[19px] p-4 flex items-center gap-4 relative overflow-hidden"
+    style={{ background: "linear-gradient(160deg,#051d2e,#0c2d45)" }}>
+    <div className="absolute top-[-30px] right-[-30px] w-[120px] h-[120px] rounded-full pointer-events-none"
+      style={{ background: "radial-gradient(circle,rgba(56,189,248,0.2),transparent 70%)" }} />
+    <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0"
+      style={{ background: "rgba(255,255,255,0.18)", border: "0.5px solid rgba(56,189,248,0.3)" }}>
+      <img src="https://infusilat.academiadeanestesia.com/infusilat-ico.jpg" alt="InfusiLat" className="w-full h-full object-cover" />
+    </div>
+    <div className="flex-1 min-w-0 relative z-10">
+      <div className="text-[16px] font-black mb-0.5"
+        style={{ background: "linear-gradient(135deg,#bae6fd,#7dd3fc,#38bdf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+        InfusiLat <span style={{ WebkitTextFillColor: "rgba(125,211,252,0.6)", fontSize: 12 }}>✦</span>
+      </div>
+      <div className="text-[13px]" style={{ color: "rgba(255,255,255,0.45)" }}>
+        Calculadora de infusiones · 110 fármacos
+      </div>
+    </div>
+    <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 relative z-10"
+      style={{ background: "rgba(56,189,248,0.2)", border: "0.5px solid rgba(56,189,248,0.3)" }}>
+      <ChevronRightIcon className="w-3.5 h-3.5" style={{ color: "#38bdf8" }} />
+    </div>
+  </div>
+</button>
               </div>
 
               {/* ── Herramientas Incluidas ────────────────────────────── */}
@@ -771,7 +802,9 @@ const [showTrialBanner, setShowTrialBanner] = useState(
       {vistaActual === "epimix" && isPremium && (
         <CalcEpiMix onBack={() => setVistaActual("home")} onProfile={() => setShowProfile(true)} />
       )}
-
+      {vistaActual === "infusilat" && isPremium && (
+  <CalcInfusiLat userId={userId} onBack={() => setVistaActual("home")} onProfile={() => setShowProfile(true)} />
+      )}
       {/* Banner de días de prueba */}
       {showTrialBanner && (
         <div className="fixed inset-0 z-[55] flex items-center justify-center px-4"
