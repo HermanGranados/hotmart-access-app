@@ -1,6 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import {
+  LIBRES, DESTACADA, PREMIUM_COMPACTAS, NOMBRES_PREMIUM,
+  type Herramienta,
+} from "@/lib/herramientas";
+import { TarjetaDestacada, TarjetaPremium, TarjetaLibre } from "./TarjetasHerramientas";
 
 const HOTMART_URL = "https://pay.hotmart.com/S105284325L";
 
@@ -70,13 +75,6 @@ function AlertCircleIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-function ChevronRightIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m9 18 6-6-6-6" />
-    </svg>
-  );
-}
 
 function ChevronLeftIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -407,22 +405,7 @@ function CalcLOCUDose({ onBack }: { onBack: () => void }) {
 
 // ── Popup Upgrade Premium ──────────────────────────────────────────────────
 
-function UpgradePopup({ tool, onClose }: { tool: "analgesiq" | "epimix"; onClose: () => void }) {
-  const toolInfo = {
-    analgesiq: {
-      name: "ANALGESIQ",
-      desc: "Calculadora avanzada para bombas elastoméricas con compatibilidad, dosis y alertas clínicas.",
-      icon: "https://anestesialatina.com/wp-content/uploads/2026/03/infusion.png",
-      gradient: "from-[#a78bfa] to-[#818cf8]",
-    },
-    epimix: {
-      name: "EpiMix",
-      desc: "Calculadora de mezclas para analgesia epidural con técnicas DPE, CSE y modos PCEA/PIEB.",
-      icon: "https://academiadeanestesia.com/wp-content/uploads/2026/04/EpiMIx-logo.png",
-      gradient: "from-[#F43F5E] to-[#fb7185]",
-    },
-  }[tool];
-
+function UpgradePopup({ h, onClose }: { h: Herramienta; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[55] flex items-center justify-center px-4"
       style={{ background: "rgba(8,6,24,0.8)", backdropFilter: "blur(14px)" }}
@@ -431,36 +414,31 @@ function UpgradePopup({ tool, onClose }: { tool: "analgesiq" | "epimix"; onClose
         style={{ boxShadow: "0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.12)" }}
         onClick={(e) => e.stopPropagation()}>
 
-        {/* Header oscuro */}
-        <div className="relative px-6 pt-7 pb-6 text-center"
-          style={{ background: "linear-gradient(135deg,#1a1040,#0f0c29)" }}>
+        <div className="relative px-6 pt-7 pb-6 text-center" style={{ background: h.color.fondo }}>
           <button onClick={onClose}
             className="absolute top-4 right-4 flex items-center justify-center rounded-full transition"
             style={{ width: 28, height: 28, background: "rgba(255,255,255,0.08)", border: "0.5px solid rgba(255,255,255,0.12)" }}>
             <XIcon style={{ width: 11, height: 11, stroke: "rgba(255,255,255,0.5)", strokeWidth: 2 }} />
           </button>
           <div className="mx-auto mb-4 flex items-center justify-center rounded-[18px] overflow-hidden"
-            style={{ width: 64, height: 64, background: "rgba(255,255,255,0.1)", border: "0.5px solid rgba(255,255,255,0.2)" }}>
-            <img src={toolInfo.icon} alt={toolInfo.name} className="w-10 h-10 object-contain" />
+            style={{ width: 64, height: 64, background: h.color.iconoFondo, border: "0.5px solid rgba(255,255,255,0.2)" }}>
+            <img src={h.icono} alt={h.nombre} className="w-full h-full object-contain" />
           </div>
           <div className="flex items-center justify-center gap-2 mb-2">
             <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full"
-              style={{ background: "rgba(192,132,252,0.2)", border: "0.5px solid rgba(192,132,252,0.4)", color: "#e9d5ff" }}>
+              style={{ background: h.color.acento + "33", border: "0.5px solid " + h.color.acento + "66", color: "#e9d5ff" }}>
               ✦ Premium
             </span>
           </div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, background: "linear-gradient(135deg,#e9d5ff,#c4b5fd,#93c5fd)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.4px", marginBottom: 8 }}>
-            {toolInfo.name}
+          <h2 style={{ fontSize: 22, fontWeight: 800, background: h.color.texto, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", letterSpacing: "-0.4px", marginBottom: 8 }}>
+            {h.nombre}
           </h2>
           <p style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", lineHeight: 1.6 }}>
-            {toolInfo.desc}
+            {h.descripcion}
           </p>
         </div>
 
-        {/* Body */}
         <div className="bg-white px-6 py-5 space-y-4">
-
-          {/* Beneficios */}
           <div className="space-y-2">
             {[
               { icon: <ZapIcon className="w-4 h-4" />, text: "Acceso a todas las herramientas Premium" },
@@ -468,7 +446,8 @@ function UpgradePopup({ tool, onClose }: { tool: "analgesiq" | "epimix"; onClose
               { icon: <StarIcon className="w-4 h-4" />, text: "Actualizaciones basadas en evidencia reciente" },
             ].map(({ icon, text }) => (
               <div key={text} className="flex items-center gap-3 text-sm text-slate-600">
-                <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-violet-500" style={{ background: "#f5f3ff" }}>
+                <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ background: h.color.acento + "1a", color: h.color.acento }}>
                   {icon}
                 </div>
                 {text}
@@ -476,21 +455,18 @@ function UpgradePopup({ tool, onClose }: { tool: "analgesiq" | "epimix"; onClose
             ))}
           </div>
 
-          {/* Botón comprar */}
           <a href={HOTMART_URL} target="_blank" rel="noopener noreferrer"
             className="block w-full rounded-[14px] text-white font-bold text-center transition-all"
             style={{ padding: "15px", fontSize: 16, background: "linear-gradient(135deg,#a78bfa,#818cf8)", boxShadow: "0 8px 24px rgba(129,140,248,0.4)" }}>
             Obtener acceso Premium →
           </a>
 
-          {/* Separador */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-slate-100" />
             <span className="text-[11px] text-slate-400 font-medium">¿Ya compraste?</span>
             <div className="flex-1 h-px bg-slate-100" />
           </div>
 
-          {/* Botones secundarios */}
           <div className="grid grid-cols-2 gap-2">
             <a href="/login?tab=first"
               className="block text-center py-3 rounded-[12px] text-[13px] font-semibold text-violet-600 transition-colors"
@@ -512,16 +488,6 @@ function UpgradePopup({ tool, onClose }: { tool: "analgesiq" | "epimix"; onClose
     </div>
   );
 }
-
-// ── Calculadora HiperSaline ───────────────────────────────────────────────
-
-const hiperOptions = [
-  { val: "20", label: "Sodio Cloruro 3.4 mEq/mL", desc: "Cloruro de Sodio 20%", pres: "Ampolla 10 mL" },
-  { val: "17.7", label: "Sodio Cloruro 3 mEq/mL", desc: "Cloruro de Sodio 17.7%", pres: "Ampolla 10 mL" },
-  { val: "11.7", label: "Sodio Cloruro 2 mEq/mL", desc: "Cloruro de Sodio 11.7%", pres: "Ampolla 10 mL" },
-  { val: "10", label: "Sodio Cloruro 1.7 mEq/mL", desc: "Cloruro de Sodio 10%", pres: "Ampolla 10 mL" },
-  { val: "3", label: "Sodio Cloruro 0.51 mEq/mL", desc: "Cloruro de Sodio 3%", pres: "Bolsa 250 mL" },
-];
 
 function CalcHiperSaline({ onBack }: { onBack: () => void }) {
   const [vf, setVf] = useState("");
@@ -692,15 +658,10 @@ function CalcHiperSaline({ onBack }: { onBack: () => void }) {
 // ── Home público principal ─────────────────────────────────────────────────
 
 type Vista = "home" | "mac" | "locu" | "hipersaline";
-type PremiumTool = "analgesiq" | "epimix" | null;
 
 export default function PublicClient() {
   const [vista, setVista] = useState<Vista>("home");
-  const [upgradeFor, setUpgradeFor] = useState<PremiumTool>(null);
-
-  function tryPremium(tool: PremiumTool) {
-    setUpgradeFor(tool);
-  }
+  const [upgradeFor, setUpgradeFor] = useState<Herramienta | null>(null);
 
   if (vista === "mac") return <CalcMACFlow onBack={() => setVista("home")} />;
   if (vista === "locu") return <CalcLOCUDose onBack={() => setVista("home")} />;
@@ -738,7 +699,7 @@ export default function PublicClient() {
 
           <div className="px-4 pt-6 pb-4 space-y-6">
 
-            {/* Banner Premium */}
+            {/* Banner Premium — se arma solo desde el registro */}
             <div className="rounded-[20px] p-[1.5px]"
               style={{ background: "linear-gradient(135deg,#c084fc,#818cf8,#38bdf8)", boxShadow: "0 8px 32px rgba(129,140,248,0.2)" }}>
               <div className="rounded-[19px] px-5 py-4 flex items-center gap-4"
@@ -748,7 +709,7 @@ export default function PublicClient() {
                     ✦ Vapora Premium
                   </p>
                   <p className="text-white text-[14px] font-semibold leading-snug">
-                    ANALGESIQ · EpiMix · HiperSaline
+                    {NOMBRES_PREMIUM}
                   </p>
                   <p className="text-[12px] mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
                     Herramientas clínicas avanzadas
@@ -762,72 +723,22 @@ export default function PublicClient() {
               </div>
             </div>
 
-            {/* Herramientas Premium */}
+            {/* Herramientas Premium — recorridas desde el registro */}
             <div>
               <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-4">
                 Herramientas Premium
               </p>
 
-              {/* ANALGESIQ */}
-              <div className="rounded-[28px] p-[1.5px] mb-3"
-                style={{ background: "linear-gradient(135deg,#c084fc,#818cf8,#38bdf8,#a78bfa)", boxShadow: "0 12px 40px rgba(129,140,248,0.28)" }}>
-                <div className="rounded-[27px] p-6 relative overflow-hidden"
-                  style={{ background: "linear-gradient(160deg,#0f0c29,#1a1040,#0d1b3e)" }}>
-                  <div className="absolute top-[-50px] right-[-50px] w-[200px] h-[200px] rounded-full pointer-events-none"
-                    style={{ background: "radial-gradient(circle,rgba(167,139,250,0.22),transparent 70%)" }} />
-                  <div className="relative z-10 flex items-center justify-between gap-3 mb-4">
-                    <div className="w-16 h-16 rounded-[18px] flex items-center justify-center overflow-hidden flex-shrink-0"
-                      style={{ background: "rgba(255,255,255,0.1)", border: "0.5px solid rgba(255,255,255,0.2)" }}>
-                      <img src="https://anestesialatina.com/wp-content/uploads/2026/03/infusion.png" alt="ANALGESIQ" className="w-11 h-11 object-contain" />
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full"
-                      style={{ background: "linear-gradient(135deg,rgba(192,132,252,0.3),rgba(129,140,248,0.3))", border: "0.5px solid rgba(192,132,252,0.5)", color: "#e9d5ff" }}>
-                      ✦ Premium
-                    </span>
-                  </div>
-                  <div className="relative z-10 text-[30px] font-black tracking-tight mb-2"
-                    style={{ background: "linear-gradient(135deg,#e9d5ff,#c4b5fd,#93c5fd)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                    ANALGESIQ
-                  </div>
-                  <p className="relative z-10 text-[13px] leading-relaxed mb-6" style={{ color: "rgba(255,255,255,0.5)" }}>
-                    Calculadora avanzada para bombas elastoméricas con compatibilidad, dosis y alertas clínicas.
-                  </p>
-                  <button onClick={() => tryPremium("analgesiq")}
-                    className="relative z-10 w-full rounded-[14px] py-[14px] text-[14px] font-bold text-white transition-all"
-                    style={{ background: "rgba(167,139,250,0.25)", border: "0.5px solid rgba(167,139,250,0.4)" }}>
-                    🔒 Requiere membresía Premium
-                  </button>
-                </div>
-              </div>
+              {DESTACADA && (
+                <TarjetaDestacada h={DESTACADA} bloqueada onClick={() => setUpgradeFor(DESTACADA)} />
+              )}
 
-              {/* EpiMix */}
-              <button onClick={() => tryPremium("epimix")}
-                className="w-full rounded-[20px] overflow-hidden text-left active:scale-[0.99] transition-all mt-3"
-                style={{ background: "linear-gradient(135deg,#f43f5e,#fb7185,#fda4af)", boxShadow: "0 8px 28px rgba(244,63,94,0.22)", padding: "1.5px" }}>
-                <div className="rounded-[19px] p-4 flex items-center gap-4 relative overflow-hidden"
-                  style={{ background: "linear-gradient(160deg,#1a0510,#2d0a1e)" }}>
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0"
-                    style={{ background: "rgba(255,255,255,0.18)", border: "0.5px solid rgba(244,63,94,0.3)" }}>
-                    <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/EpiMIx-logo.png" alt="EpiMix" className="w-10 h-10 object-contain" />
-                  </div>
-                  <div className="flex-1 min-w-0 relative z-10">
-                    <div className="text-[16px] font-black mb-0.5"
-                      style={{ background: "linear-gradient(135deg,#fecdd3,#fda4af,#fb7185)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                      EpiMix <span style={{ WebkitTextFillColor: "rgba(253,164,175,0.6)", fontSize: 12 }}>✦</span>
-                    </div>
-                    <div className="text-[13px]" style={{ color: "rgba(255,255,255,0.45)" }}>Mezclas para Analgesia Epidural</div>
-                  </div>
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 relative z-10"
-                    style={{ background: "rgba(244,63,94,0.2)", border: "0.5px solid rgba(244,63,94,0.3)" }}>
-                    <ChevronRightIcon className="w-3.5 h-3.5" style={{ color: "#fb7185" }} />
-                  </div>
-                </div>
-              </button>
-
-
+              {PREMIUM_COMPACTAS.map((h) => (
+                <TarjetaPremium key={h.id} h={h} onClick={() => setUpgradeFor(h)} />
+              ))}
             </div>
 
-            {/* Herramientas Gratuitas */}
+            {/* Herramientas Gratuitas — recorridas desde el registro */}
             <div>
               <div className="flex items-center gap-2 px-1 mb-4">
                 <p className="text-[11px] font-black uppercase tracking-[0.16em] text-slate-400">
@@ -838,85 +749,9 @@ export default function PublicClient() {
                 </span>
               </div>
               <div className="space-y-3">
-
-                {/* MACFlow */}
-                <button onClick={() => setVista("mac")}
-                  className="w-full rounded-[20px] p-[1px] text-left active:scale-[0.99] transition-all"
-                  style={{ background: "linear-gradient(135deg,#bae6fd,#e0f2fe,#f0f9ff)", boxShadow: "0 4px 16px rgba(14,165,233,0.12)" }}>
-                  <div className="rounded-[19px] bg-white p-4 flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0 relative"
-                      style={{ background: "linear-gradient(135deg,#e0f2fe,#bae6fd)" }}>
-                      <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/anesthesia.png" alt="MACFlow" className="w-10 h-10 object-contain" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[16px] font-black text-slate-900">MACFlow</span>
-                        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-sky-50 text-sky-500 border border-sky-100">Gratis</span>
-                      </div>
-                      <div className="text-[12px] text-slate-400 leading-snug">Consumo de anestésicos inhalatorios</div>
-                      <div className="flex items-center gap-1 mt-1.5">
-                        <span className="text-[10px] text-slate-300 font-medium">Sevo · Desf · Iso</span>
-                      </div>
-                    </div>
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ background: "linear-gradient(135deg,#e0f2fe,#bae6fd)" }}>
-                      <ChevronRightIcon className="w-3.5 h-3.5 text-sky-400" />
-                    </div>
-                  </div>
-                </button>
-
-                {/* LOCUDose */}
-                <button onClick={() => setVista("locu")}
-                  className="w-full rounded-[20px] p-[1px] text-left active:scale-[0.99] transition-all"
-                  style={{ background: "linear-gradient(135deg,#bbf7d0,#dcfce7,#f0fdf4)", boxShadow: "0 4px 16px rgba(34,197,94,0.12)" }}>
-                  <div className="rounded-[19px] bg-white p-4 flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0"
-                      style={{ background: "linear-gradient(135deg,#f0fdf4,#dcfce7)" }}>
-                      <img src="https://academiadeanestesia.com/wp-content/uploads/2026/03/calculator.png" alt="LOCUDose" className="w-10 h-10 object-contain" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[16px] font-black text-slate-900">LOCUDose</span>
-                        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-500 border border-emerald-100">Gratis</span>
-                      </div>
-                      <div className="text-[12px] text-slate-400 leading-snug">Cálculo de anestésicos locales</div>
-                      <div className="flex items-center gap-1 mt-1.5">
-                        <span className="text-[10px] text-slate-300 font-medium">Dilución · Dosis regional</span>
-                      </div>
-                    </div>
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ background: "linear-gradient(135deg,#f0fdf4,#dcfce7)" }}>
-                      <ChevronRightIcon className="w-3.5 h-3.5 text-emerald-400" />
-                    </div>
-                  </div>
-                </button>
-
-                {/* HiperSaline */}
-                <button onClick={() => setVista("hipersaline")}
-                  className="w-full rounded-[20px] p-[1px] text-left active:scale-[0.99] transition-all"
-                  style={{ background: "linear-gradient(135deg,#a7f3d0,#d1fae5,#ecfdf5)", boxShadow: "0 4px 16px rgba(16,185,129,0.12)" }}>
-                  <div className="rounded-[19px] bg-white p-4 flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0"
-                      style={{ background: "linear-gradient(135deg,#d1fae5,#a7f3d0)" }}>
-                      <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/HiperSaline-Logo.png" alt="HiperSaline" className="w-10 h-10 object-contain" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-[16px] font-black text-slate-900">HiperSaline</span>
-                        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-teal-50 text-teal-500 border border-teal-100">Gratis</span>
-                      </div>
-                      <div className="text-[12px] text-slate-400 leading-snug">Solución Salina Hipertónica</div>
-                      <div className="flex items-center gap-1 mt-1.5">
-                        <span className="text-[10px] text-slate-300 font-medium">Protocolo de preparación</span>
-                      </div>
-                    </div>
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ background: "linear-gradient(135deg,#d1fae5,#a7f3d0)" }}>
-                      <ChevronRightIcon className="w-3.5 h-3.5 text-teal-400" />
-                    </div>
-                  </div>
-                </button>
-
+                {LIBRES.map((h) => (
+                  <TarjetaLibre key={h.id} h={h} mostrarBadge onClick={() => setVista(h.id as Vista)} />
+                ))}
               </div>
             </div>
           </div>
@@ -927,7 +762,7 @@ export default function PublicClient() {
 
       {/* Popup de upgrade */}
       {upgradeFor && (
-        <UpgradePopup tool={upgradeFor} onClose={() => setUpgradeFor(null)} />
+        <UpgradePopup h={upgradeFor} onClose={() => setUpgradeFor(null)} />
       )}
     </>
   );
