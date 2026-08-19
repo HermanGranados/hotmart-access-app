@@ -27,9 +27,6 @@ function ChevronLeftIcon(p: React.SVGProps<SVGSVGElement>) {
 function ChevronRightIcon(p: React.SVGProps<SVGSVGElement>) {
   return <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>;
 }
-function ChevronDownIcon(p: React.SVGProps<SVGSVGElement>) {
-  return <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>;
-}
 function UserIcon(p: React.SVGProps<SVGSVGElement>) {
   return <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21a8 8 0 0 0-16 0"/><circle cx="12" cy="8" r="4"/></svg>;
 }
@@ -63,9 +60,114 @@ function NavCfgIcon(p: React.SVGProps<SVGSVGElement>) {
   return <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4c0-.7-.1-1.3-.2-2l2-1.5-2-3.5-2.4 1a8 8 0 0 0-1.7-1l-.4-2.5h-4l-.4 2.5a8 8 0 0 0-1.7 1l-2.4-1-2 3.5L3.2 10a8 8 0 0 0 0 4l-2 1.5 2 3.5 2.4-1c.5.4 1.1.7 1.7 1l.4 2.5h4l.4-2.5c.6-.3 1.2-.6 1.7-1l2.4 1 2-3.5-2-1.5c.1-.7.2-1.3.2-2z"/></svg>;
 }
 
+/* ── Deslizar para eliminar ──────────────────────────────────────── */
+
+/** Solo una fila abierta a la vez en toda la pantalla. */
+let cerrarAbierta: (() => void) | null = null;
+
+function Deslizable({ children, onEliminar, etiqueta = "Eliminar" }: {
+  children: React.ReactNode; onEliminar: () => void; etiqueta?: string;
+}) {
+  const [dx, setDx] = useState(0);
+  const [abierto, setAbierto] = useState(false);
+  const [animar, setAnimar] = useState(true);
+  const g = useRef({ x0: 0, y0: 0, arrastra: false, eje: null as null | "x" | "y", movido: false });
+  const ANCHO = 96;
+
+  const cerrar = useCallback(() => {
+    setAnimar(true); setDx(0); setAbierto(false);
+    if (cerrarAbierta === cerrar) cerrarAbierta = null;
+  }, []);
+
+  useEffect(() => () => { if (cerrarAbierta === cerrar) cerrarAbierta = null; }, [cerrar]);
+
+  const onDown = (e: React.PointerEvent) => {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    if (cerrarAbierta && cerrarAbierta !== cerrar) cerrarAbierta();
+    g.current = { x0: e.clientX, y0: e.clientY, arrastra: true, eje: null, movido: false };
+    setAnimar(false);
+  };
+
+  const onMove = (e: React.PointerEvent) => {
+    const s = g.current;
+    if (!s.arrastra) return;
+    const ax = e.clientX - s.x0;
+    const ay = e.clientY - s.y0;
+
+    if (s.eje === null) {
+      if (Math.abs(ax) < 6 && Math.abs(ay) < 6) return;
+      s.eje = Math.abs(ax) > Math.abs(ay) ? "x" : "y";
+    }
+    if (s.eje !== "x") { s.arrastra = false; setAnimar(true); setDx(abierto ? -ANCHO : 0); return; }
+
+    s.movido = true;
+    setDx(Math.max(-ANCHO, Math.min(0, (abierto ? -ANCHO : 0) + ax)));
+  };
+
+  const onUp = () => {
+    const s = g.current;
+    if (!s.arrastra) return;
+    s.arrastra = false;
+    setAnimar(true);
+    if (s.eje === "x") {
+      const ab = dx < -ANCHO / 2.5;
+      setDx(ab ? -ANCHO : 0);
+      setAbierto(ab);
+      if (ab) cerrarAbierta = cerrar;
+      else if (cerrarAbierta === cerrar) cerrarAbierta = null;
+    }
+  };
+
+  return (
+    <div className="relative overflow-hidden border-b border-slate-50 last:border-0">
+      <button
+        onClick={(e) => { e.stopPropagation(); onEliminar(); cerrar(); }}
+        className="absolute top-0 right-0 bottom-0 flex items-center justify-center text-white text-[13px] font-bold transition-opacity"
+        style={{ width: ANCHO, background: "#ef4444", opacity: abierto ? 1 : 0, pointerEvents: abierto ? "auto" : "none" }}
+      >
+        {etiqueta}
+      </button>
+      <div
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerUp={onUp}
+        onPointerCancel={onUp}
+        onClickCapture={(e) => {
+          if (abierto || g.current.movido) { e.stopPropagation(); e.preventDefault(); cerrar(); g.current.movido = false; }
+        }}
+        className="relative bg-white"
+        style={{
+          transform: `translateX(${dx}px)`,
+          transition: animar ? "transform .18s cubic-bezier(.2,.8,.2,1)" : "none",
+          touchAction: "pan-y",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
+}
+
+/* ── Botón de agregar ────────────────────────────────────────────── */
+
+function BotonAgregar({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="w-full rounded-xl py-3.5 text-[14px] font-bold text-white transition active:scale-[0.99]"
+      style={{ background: AC, boxShadow: "0 4px 14px rgba(2,132,199,0.28)" }}
+    >
+      + {label}
+    </button>
+  );
+}
+
 /* ── Cabecera ────────────────────────────────────────────────────── */
 
-function AppHeader({ title, onBack, onProfile }: { title: string; onBack: () => void; onProfile: () => void }) {
+function AppHeader({ title, onBack, onProfile, accion }: {
+  title: string; onBack: () => void; onProfile: () => void;
+  accion?: { label: string; onClick: () => void };
+}) {
   return (
     <header className="sticky top-0 z-30 w-full bg-white/95 backdrop-blur-md border-b border-slate-100">
       <div className="flex items-center gap-2.5 px-3.5 py-2.5">
@@ -81,9 +183,19 @@ function AppHeader({ title, onBack, onProfile }: { title: string; onBack: () => 
             <span className="text-[11px] font-light text-slate-400 tracking-wide truncate">· {title}</span>
           </div>
         </div>
-        <button onClick={onProfile} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95">
-          <UserIcon className="w-3.5 h-3.5 text-slate-500" />
-        </button>
+        {accion ? (
+          <button
+            onClick={accion.onClick}
+            className="flex items-center gap-1 rounded-full px-3 py-1.5 flex-shrink-0 text-[12.5px] font-bold text-white transition active:scale-95"
+            style={{ background: AC }}
+          >
+            + {accion.label}
+          </button>
+        ) : (
+          <button onClick={onProfile} className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 hover:bg-slate-200 transition active:scale-95">
+            <UserIcon className="w-3.5 h-3.5 text-slate-500" />
+          </button>
+        )}
       </div>
     </header>
   );
@@ -253,6 +365,37 @@ export default function CalcInfusiLat({ userId, onBack, onProfile }: Props) {
     setVista("drug");
   };
 
+  /* --- Crear --- */
+  const nuevoFarmaco = () => {
+    const id = "u" + Date.now();
+    const nuevo: Farmaco = {
+      id, n: "Nuevo fármaco", c: Object.keys(cats)[0] ?? "anest", fav: 0,
+      inf: { u: "mg/kg/hr", lo: 1, hi: 5, dil: { m: 100, um: "mg", v: 100, d: "SSN 0.9%" } },
+      bol: { u: "mg/kg", lo: 0.1, hi: 1, tope: 0, via: "IV", dil: { m: 100, um: "mg", v: 10, d: "SSN 0.9%" } },
+      nota: "",
+    };
+    actualizar((s) => ({ ...s, data: { ...s.data, drugs: [...s.data.drugs, nuevo] } }));
+    setDesde(vista);
+    setDrugId(id);
+    setVista("edit");
+  };
+
+  const nuevoSet = () => {
+    const nuevo = { id: "u" + Date.now(), n: "Nuevo set", items: [] };
+    actualizar((s) => ({ ...s, data: { ...s.data, sets: [...s.data.sets, nuevo] } }));
+    setSetIdx(sets.length);
+    setVista("set");
+  };
+
+  const editarSet = (mut: (items: Catalogo["sets"][number]["items"]) => Catalogo["sets"][number]["items"]) =>
+    actualizar((s) => ({
+      ...s,
+      data: {
+        ...s.data,
+        sets: s.data.sets.map((st, j) => j !== setIdx ? st : { ...st, items: mut(st.items) }),
+      },
+    }));
+
   const tituloVista =
     vista === "drug" ? drug?.n ?? "Fármaco"
     : vista === "list" ? (cat ? cats[cat] : "Todos")
@@ -262,6 +405,13 @@ export default function CalcInfusiLat({ userId, onBack, onProfile }: Props) {
 
   const mostrarBarraPeso = !["peso", "cfg", "edit"].includes(vista);
 
+  /* Botón + en la cabecera según la vista */
+  const accionCabecera =
+    vista === "cats" || vista === "list" ? { label: "Agregar", onClick: nuevoFarmaco }
+    : vista === "sets" ? { label: "Agregar", onClick: nuevoSet }
+    : vista === "drug" && drug ? { label: "Editar", onClick: () => { setDesde("drug"); setVista("edit"); } }
+    : undefined;
+
   return (
     <div className="min-h-screen bg-white font-sans text-slate-800">
       <style>{`
@@ -270,7 +420,12 @@ export default function CalcInfusiLat({ userId, onBack, onProfile }: Props) {
       `}</style>
 
       <div className="max-w-md mx-auto bg-white min-h-screen sm:border-x border-slate-100 flex flex-col">
-        <AppHeader title={`InfusiLat · ${tituloVista}`} onBack={vista === tab ? onBack : () => setVista(desde === "drug" ? "cats" : desde)} onProfile={onProfile} />
+        <AppHeader
+          title={`InfusiLat · ${tituloVista}`}
+          onBack={vista === tab ? onBack : () => setVista(desde === "drug" ? "drug" : desde)}
+          onProfile={onProfile}
+          accion={accionCabecera}
+        />
 
         {/* Barra de peso */}
         {mostrarBarraPeso && (
@@ -314,11 +469,25 @@ export default function CalcInfusiLat({ userId, onBack, onProfile }: Props) {
         )}
 
         <main className="flex-1 flex flex-col w-full">
-          {vista === "fav" && <VistaFav drugs={drugs} cats={cats} onOpen={(id) => abrirDrug(id, "fav")} onQuitarFav={(id) => actualizar((s) => ({ ...s, data: { ...s.data, drugs: s.data.drugs.map((d) => d.id === id ? { ...d, fav: 0 } : d) } }))} />}
+          {vista === "fav" && (
+            <VistaFav
+              drugs={drugs} cats={cats}
+              onOpen={(id) => abrirDrug(id, "fav")}
+              onQuitarFav={(id) => actualizar((s) => ({ ...s, data: { ...s.data, drugs: s.data.drugs.map((d) => d.id === id ? { ...d, fav: 0 } : d) } }))}
+              onNuevo={nuevoFarmaco}
+            />
+          )}
 
           {vista === "cats" && <VistaCats drugs={drugs} cats={cats} q={q} setQ={setQ} onCat={(c) => { setCat(c); setVista("list"); }} onOpen={(id) => abrirDrug(id, "cats")} />}
 
-          {vista === "list" && <VistaList drugs={drugs} cats={cats} cat={cat} onOpen={(id) => abrirDrug(id, "list")} onEliminar={(id) => actualizar((s) => ({ ...s, data: { ...s.data, drugs: s.data.drugs.filter((d) => d.id !== id) } }))} />}
+          {vista === "list" && (
+            <VistaList
+              drugs={drugs} cats={cats} cat={cat}
+              onOpen={(id) => abrirDrug(id, "list")}
+              onEliminar={(id) => actualizar((s) => ({ ...s, data: { ...s.data, drugs: s.data.drugs.filter((d) => d.id !== id) } }))}
+              onNuevo={nuevoFarmaco}
+            />
+          )}
 
           {vista === "drug" && drug && (
             <VistaDrug
@@ -340,12 +509,43 @@ export default function CalcInfusiLat({ userId, onBack, onProfile }: Props) {
             />
           )}
 
-          {vista === "sets" && <VistaSets sets={sets} drugs={drugs} onOpen={(i) => { setSetIdx(i); setVista("set"); }} onEliminar={(i) => actualizar((s) => ({ ...s, data: { ...s.data, sets: s.data.sets.filter((_, j) => j !== i) } }))} />}
+          {vista === "edit" && drug && (
+            <VistaEdit
+              drug={drug} cats={cats}
+              onGuardar={(nuevo) => {
+                actualizar((s) => ({ ...s, data: { ...s.data, drugs: s.data.drugs.map((d) => d.id === nuevo.id ? nuevo : d) } }));
+                setVista("drug");
+                setModo(nuevo.inf ? "inf" : nuevo.bol ? "bol" : "nota");
+              }}
+              onEliminar={() => {
+                actualizar((s) => ({ ...s, data: { ...s.data, drugs: s.data.drugs.filter((d) => d.id !== drug.id) } }));
+                setDrugId(null);
+                irA("cats");
+              }}
+            />
+          )}
+
+          {vista === "sets" && (
+            <VistaSets
+              sets={sets} drugs={drugs}
+              onOpen={(i) => { setSetIdx(i); setVista("set"); }}
+              onEliminar={(i) => actualizar((s) => ({ ...s, data: { ...s.data, sets: s.data.sets.filter((_, j) => j !== i) } }))}
+              onNuevo={nuevoSet}
+            />
+          )}
 
           {vista === "set" && sets[setIdx] && (
             <VistaSet
               set={sets[setIdx]} drugs={drugs} W={W} wMode={wMode}
-              onVal={(i, val) => actualizar((s) => ({ ...s, data: { ...s.data, sets: s.data.sets.map((st, j) => j !== setIdx ? st : { ...st, items: st.items.map((it, k) => k === i ? { ...it, val } : it) }) } }))}
+              onVal={(i, val) => editarSet((items) => items.map((it, k) => k === i ? { ...it, val } : it))}
+              onQuitar={(i) => editarSet((items) => items.filter((_, k) => k !== i))}
+              onAgregar={(drugId, m) => {
+                const d = drugs.find((x) => x.id === drugId);
+                if (!d) return;
+                const src = m === "inf" ? d.inf : d.bol;
+                editarSet((items) => [...items, { d: drugId, modo: m, val: src?.lo ?? 0 }]);
+              }}
+              onRenombrar={(n) => actualizar((s) => ({ ...s, data: { ...s.data, sets: s.data.sets.map((st, j) => j === setIdx ? { ...st, n } : st) } }))}
               onDrug={(id) => abrirDrug(id, "set")}
             />
           )}
@@ -372,7 +572,7 @@ export default function CalcInfusiLat({ userId, onBack, onProfile }: Props) {
         {/* Navegación inferior */}
         <div
           className="sticky bottom-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-100"
-          style={{ paddingBottom: "max(15px, calc(env(safe-area-inset-bottom) + 5px))" }}
+          style={{ paddingBottom: "max(10px, env(safe-area-inset-bottom))" }}
         >
           <nav className="flex max-w-md mx-auto pt-1.5">
             {([
@@ -402,9 +602,12 @@ export default function CalcInfusiLat({ userId, onBack, onProfile }: Props) {
 
 function FilaDrug({ d, cats, onClick }: { d: Farmaco; cats: Record<string, string>; onClick: () => void }) {
   return (
-    <button onClick={onClick} className="w-full flex items-center gap-2.5 px-4 py-3 border-b border-slate-50 last:border-0 text-left hover:bg-slate-50 transition active:bg-slate-100">
+    <button onClick={onClick} className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-slate-50 transition active:bg-slate-100">
       <div className="flex-1 min-w-0">
-        <div className="text-[15px] font-semibold text-slate-800 truncate">{d.n}</div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[15px] font-semibold text-slate-800 truncate">{d.n}</span>
+          {d.fav ? <StarIcon filled className="w-3.5 h-3.5 shrink-0" style={{ color: "#f59e0b" }} /> : null}
+        </div>
         <div className="text-[11.5px] text-slate-400 truncate">{cats[d.c] ?? ""}</div>
       </div>
       {d.inf && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0" style={{ background: AC_SOFT, color: AC }}>inf</span>}
@@ -417,31 +620,35 @@ function FilaDrug({ d, cats, onClick }: { d: Farmaco; cats: Record<string, strin
 
 /* ── Vista: Favoritos ────────────────────────────────────────────── */
 
-function VistaFav({ drugs, cats, onOpen, onQuitarFav }: {
-  drugs: Farmaco[]; cats: Record<string, string>; onOpen: (id: string) => void; onQuitarFav: (id: string) => void;
+function VistaFav({ drugs, cats, onOpen, onQuitarFav, onNuevo }: {
+  drugs: Farmaco[]; cats: Record<string, string>; onOpen: (id: string) => void;
+  onQuitarFav: (id: string) => void; onNuevo: () => void;
 }) {
   const favs = drugs.filter((d) => d.fav);
   return (
-    <div className="px-4 py-4">
+    <div className="px-4 py-4 space-y-3">
       {favs.length === 0 ? (
-        <div className="text-center py-16 px-6">
+        <div className="text-center py-14 px-6">
           <StarIcon className="w-10 h-10 mx-auto mb-3 text-slate-200" />
           <p className="text-[14px] text-slate-400 leading-relaxed">
             Sin favoritos todavía.<br />Marca la estrella dentro de cualquier fármaco.
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-          {favs.map((d) => (
-            <div key={d.id} className="relative flex items-stretch">
-              <div className="flex-1 min-w-0"><FilaDrug d={d} cats={cats} onClick={() => onOpen(d.id)} /></div>
-              <button onClick={() => onQuitarFav(d.id)} className="px-3 border-b border-slate-50 text-[11px] font-bold text-slate-300 hover:text-red-500 transition">
-                Quitar
-              </button>
-            </div>
-          ))}
-        </div>
+        <>
+          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+            {favs.map((d) => (
+              <Deslizable key={d.id} etiqueta="Quitar" onEliminar={() => onQuitarFav(d.id)}>
+                <FilaDrug d={d} cats={cats} onClick={() => onOpen(d.id)} />
+              </Deslizable>
+            ))}
+          </div>
+          <p className="text-[11.5px] text-slate-400 text-center">
+            Desliza un fármaco hacia la izquierda para quitarlo de favoritos.
+          </p>
+        </>
       )}
+      <BotonAgregar label="Agregar fármaco" onClick={onNuevo} />
     </div>
   );
 }
@@ -511,9 +718,9 @@ function VistaCats({ drugs, cats, q, setQ, onCat, onOpen }: {
 
 /* ── Vista: Lista ────────────────────────────────────────────────── */
 
-function VistaList({ drugs, cats, cat, onOpen, onEliminar }: {
+function VistaList({ drugs, cats, cat, onOpen, onEliminar, onNuevo }: {
   drugs: Farmaco[]; cats: Record<string, string>; cat: string | null;
-  onOpen: (id: string) => void; onEliminar: (id: string) => void;
+  onOpen: (id: string) => void; onEliminar: (id: string) => void; onNuevo: () => void;
 }) {
   const lista = useMemo(
     () => (cat ? drugs.filter((d) => d.c === cat) : drugs).slice().sort((a, b) => a.n.localeCompare(b.n, "es")),
@@ -536,19 +743,21 @@ function VistaList({ drugs, cats, cat, onOpen, onEliminar }: {
           <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-2">{letra}</p>
           <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
             {grupos[letra].map((d) => (
-              <div key={d.id} className="relative flex items-stretch">
-                <div className="flex-1 min-w-0"><FilaDrug d={d} cats={cats} onClick={() => onOpen(d.id)} /></div>
-                <button
-                  onClick={() => { if (confirm(`¿Eliminar «${d.n}» del catálogo?`)) onEliminar(d.id); }}
-                  className="px-3 border-b border-slate-50 text-[11px] font-bold text-slate-200 hover:text-red-500 transition"
-                >
-                  ✕
-                </button>
-              </div>
+              <Deslizable
+                key={d.id}
+                onEliminar={() => { if (confirm(`¿Eliminar «${d.n}» del catálogo?`)) onEliminar(d.id); }}
+              >
+                <FilaDrug d={d} cats={cats} onClick={() => onOpen(d.id)} />
+              </Deslizable>
             ))}
           </div>
         </div>
       ))}
+
+      <p className="text-[11.5px] text-slate-400 text-center">
+        Desliza hacia la izquierda para eliminar un fármaco.
+      </p>
+      <BotonAgregar label="Agregar fármaco" onClick={onNuevo} />
     </div>
   );
 }
@@ -870,44 +1079,77 @@ function PanelBol({ drug, W, wMode, onDil }: {
 
 /* ── Vista: Sets ─────────────────────────────────────────────────── */
 
-function VistaSets({ sets, drugs, onOpen, onEliminar }: {
-  sets: Catalogo["sets"]; drugs: Farmaco[]; onOpen: (i: number) => void; onEliminar: (i: number) => void;
+function VistaSets({ sets, drugs, onOpen, onEliminar, onNuevo }: {
+  sets: Catalogo["sets"]; drugs: Farmaco[]; onOpen: (i: number) => void;
+  onEliminar: (i: number) => void; onNuevo: () => void;
 }) {
-  if (!sets.length) return <div className="text-center py-16 text-[14px] text-slate-400">Sin sets</div>;
   return (
-    <div className="px-4 py-4">
-      <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-        {sets.map((s, i) => (
-          <div key={s.id} className="relative flex items-stretch">
-            <button onClick={() => onOpen(i)} className="flex-1 min-w-0 flex items-center gap-2.5 px-4 py-3 border-b border-slate-50 text-left hover:bg-slate-50 transition">
-              <div className="flex-1 min-w-0">
-                <div className="text-[15px] font-semibold text-slate-800 truncate">{s.n}</div>
-                <div className="text-[11.5px] text-slate-400 truncate">
-                  {s.items.map((x) => drugs.find((d) => d.id === x.d)?.n ?? "?").join(" · ")}
-                </div>
-              </div>
-              <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">{s.items.length}</span>
-              <ChevronRightIcon className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-            </button>
-            <button
-              onClick={() => { if (confirm(`¿Eliminar el set «${s.n}»?`)) onEliminar(i); }}
-              className="px-3 border-b border-slate-50 text-[11px] font-bold text-slate-200 hover:text-red-500 transition"
-            >
-              ✕
-            </button>
+    <div className="px-4 py-4 space-y-3">
+      {!sets.length ? (
+        <div className="text-center py-14 text-[14px] text-slate-400">Sin sets todavía</div>
+      ) : (
+        <>
+          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+            {sets.map((s, i) => (
+              <Deslizable
+                key={s.id}
+                onEliminar={() => { if (confirm(`¿Eliminar el set «${s.n}»?`)) onEliminar(i); }}
+              >
+                <button onClick={() => onOpen(i)} className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-slate-50 transition">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[15px] font-semibold text-slate-800 truncate">{s.n}</div>
+                    <div className="text-[11.5px] text-slate-400 truncate">
+                      {s.items.map((x) => drugs.find((d) => d.id === x.d)?.n ?? "?").join(" · ") || "Sin fármacos"}
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">{s.items.length}</span>
+                  <ChevronRightIcon className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                </button>
+              </Deslizable>
+            ))}
           </div>
-        ))}
-      </div>
+          <p className="text-[11.5px] text-slate-400 text-center">
+            Desliza un set hacia la izquierda para eliminarlo.
+          </p>
+        </>
+      )}
+      <BotonAgregar label="Agregar set" onClick={onNuevo} />
     </div>
   );
 }
 
-function VistaSet({ set, drugs, W, wMode, onVal, onDrug }: {
+function VistaSet({ set, drugs, W, wMode, onVal, onDrug, onQuitar, onAgregar, onRenombrar }: {
   set: Catalogo["sets"][number]; drugs: Farmaco[]; W: number; wMode: ModoPeso;
   onVal: (i: number, val: number) => void; onDrug: (id: string) => void;
+  onQuitar: (i: number) => void;
+  onAgregar: (drugId: string, modo: "inf" | "bol") => void;
+  onRenombrar: (n: string) => void;
 }) {
+  const [eligiendo, setEligiendo] = useState(false);
+  const [q, setQ] = useState("");
+
+  const candidatos = useMemo(() => {
+    const t = q.toLowerCase().trim();
+    return drugs
+      .filter((d) => (d.inf || d.bol) && (!t || (d.n + " " + (d.a ?? []).join(" ")).toLowerCase().includes(t)))
+      .sort((a, b) => a.n.localeCompare(b.n, "es"))
+      .slice(0, 40);
+  }, [drugs, q]);
+
   return (
     <div className="px-4 py-4 space-y-3">
+      <input
+        value={set.n} onChange={(e) => onRenombrar(e.target.value)}
+        className="w-full bg-white border border-slate-100 rounded-2xl shadow-sm px-4 py-3 text-[16px] font-semibold text-slate-800 outline-none focus:border-[#0284c7] transition"
+        style={{ fontSize: "16px" }}
+      />
+
+      {set.items.length === 0 && (
+        <div className="text-center py-10 text-[14px] text-slate-400">
+          Este set está vacío.<br />Añade fármacos con el botón de abajo.
+        </div>
+      )}
+
       {set.items.map((it, i) => {
         const d = drugs.find((x) => x.id === it.d);
         if (!d) return null;
@@ -931,6 +1173,12 @@ function VistaSet({ set, drugs, W, wMode, onVal, onDrug }: {
               </span>
               <button onClick={() => onDrug(d.id)} className="text-slate-300 hover:text-slate-500 transition shrink-0">
                 <ChevronRightIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => onQuitar(i)}
+                className="text-[15px] leading-none text-slate-200 hover:text-red-500 transition shrink-0 px-1"
+              >
+                ✕
               </button>
             </div>
 
@@ -958,6 +1206,47 @@ function VistaSet({ set, drugs, W, wMode, onVal, onDrug }: {
           </div>
         );
       })}
+
+      {!eligiendo ? (
+        <BotonAgregar label="Añadir fármaco al set" onClick={() => { setEligiendo(true); setQ(""); }} />
+      ) : (
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+          <div className="p-3 border-b border-slate-100 flex items-center gap-2">
+            <input
+              autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar fármaco…"
+              className="flex-1 min-w-0 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[15px] text-slate-800 outline-none focus:border-[#0284c7] transition"
+              style={{ fontSize: "16px" }}
+            />
+            <button onClick={() => setEligiendo(false)} className="text-[13px] font-semibold text-slate-400 px-2 shrink-0">
+              Cancelar
+            </button>
+          </div>
+          <div style={{ maxHeight: 300, overflowY: "auto" }}>
+            {candidatos.map((d) => (
+              <div key={d.id} className="flex items-center gap-2 px-4 py-2.5 border-b border-slate-50 last:border-0">
+                <span className="flex-1 text-[14px] font-medium text-slate-700 truncate">{d.n}</span>
+                {d.inf && (
+                  <button
+                    onClick={() => { onAgregar(d.id, "inf"); setEligiendo(false); }}
+                    className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0"
+                    style={{ background: AC_SOFT, color: AC }}
+                  >
+                    + inf
+                  </button>
+                )}
+                {d.bol && (
+                  <button
+                    onClick={() => { onAgregar(d.id, "bol"); setEligiendo(false); }}
+                    className="text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 bg-emerald-50 text-emerald-600"
+                  >
+                    + bolo
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1070,6 +1359,183 @@ function VistaPeso({ pac, pesos, wMode, setWMode, onPac }: {
           </p>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ── Vista: Editar fármaco ───────────────────────────────────────── */
+
+function VistaEdit({ drug, cats, onGuardar, onEliminar }: {
+  drug: Farmaco; cats: Record<string, string>;
+  onGuardar: (d: Farmaco) => void; onEliminar: () => void;
+}) {
+  const [b, setB] = useState<Farmaco>(() => JSON.parse(JSON.stringify(drug)));
+
+  const todasRitmo = [...RATEU.g, ...RATEU.U, ...RATEU.mEq, ...RATEU.mmol, ...RATEU.mL];
+  const todasDosis = [...DOSEU.g, ...DOSEU.U, ...DOSEU.mEq, ...DOSEU.mmol, ...DOSEU.mL];
+
+  const campoNum = (valor: number, onChange: (n: number) => void) => (
+    <input
+      inputMode="decimal" value={fmt(valor)}
+      onChange={(e) => onChange(num(e.target.value))}
+      className="flex-1 min-w-0 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[16px] font-bold text-right text-slate-800 outline-none focus:border-[#0284c7] transition"
+    />
+  );
+
+  const fila = (label: string, dentro: React.ReactNode) => (
+    <div className="flex items-center gap-2">
+      <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">{label}</span>
+      {dentro}
+    </div>
+  );
+
+  return (
+    <div className="px-4 py-4 space-y-4">
+      {/* Datos generales */}
+      <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
+        {fila("Nombre",
+          <input
+            value={b.n} onChange={(e) => setB({ ...b, n: e.target.value })}
+            className="flex-1 min-w-0 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[15px] font-semibold text-slate-800 outline-none focus:border-[#0284c7] transition"
+            style={{ fontSize: "16px" }}
+          />
+        )}
+        {fila("Categoría",
+          <select
+            value={b.c} onChange={(e) => setB({ ...b, c: e.target.value })}
+            className="flex-1 min-w-0 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[14px] text-slate-700 outline-none"
+            style={{ fontSize: "16px" }}
+          >
+            {Object.keys(cats).map((k) => <option key={k} value={k}>{cats[k]}</option>)}
+          </select>
+        )}
+        <div className="flex items-center gap-2">
+          <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">Marcas</span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setB({ ...b, fav: b.fav ? 0 : 1 })}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12.5px] font-semibold transition border"
+              style={b.fav
+                ? { background: "#fffbeb", borderColor: "#fcd34d", color: "#b45309" }
+                : { background: "white", borderColor: "#e2e8f0", color: "#94a3b8" }}
+            >
+              <StarIcon filled={!!b.fav} className="w-3.5 h-3.5" /> Favorito
+            </button>
+            <button
+              onClick={() => setB({ ...b, alerta: b.alerta ? 0 : 1 })}
+              className="px-3 py-1.5 rounded-full text-[12.5px] font-semibold transition border"
+              style={b.alerta
+                ? { background: "#fef2f2", borderColor: "#fca5a5", color: "#dc2626" }
+                : { background: "white", borderColor: "#e2e8f0", color: "#94a3b8" }}
+            >
+              Alto riesgo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Infusión */}
+      <div>
+        <div className="flex items-center justify-between px-1 mb-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Infusión</p>
+          <button
+            onClick={() => setB({
+              ...b,
+              inf: b.inf ? undefined : { u: "mg/kg/hr", lo: 1, hi: 5, dil: { m: 100, um: "mg", v: 100, d: "SSN 0.9%" } },
+            })}
+            className="text-[11.5px] font-bold transition"
+            style={{ color: b.inf ? "#ef4444" : AC }}
+          >
+            {b.inf ? "Quitar" : "+ Añadir"}
+          </button>
+        </div>
+        {b.inf && (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
+            {fila("Unidad",
+              <select
+                value={b.inf.u}
+                onChange={(e) => setB({ ...b, inf: { ...b.inf!, u: e.target.value } })}
+                className="flex-1 min-w-0 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[14px] text-slate-700 outline-none"
+                style={{ fontSize: "16px" }}
+              >
+                {todasRitmo.map((u) => <option key={u} value={u}>{u}</option>)}
+              </select>
+            )}
+            {fila("Mínimo", campoNum(b.inf.lo, (n) => setB({ ...b, inf: { ...b.inf!, lo: n } })))}
+            {fila("Máximo", campoNum(b.inf.hi, (n) => setB({ ...b, inf: { ...b.inf!, hi: n } })))}
+          </div>
+        )}
+      </div>
+
+      {/* Bolo */}
+      <div>
+        <div className="flex items-center justify-between px-1 mb-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Bolo</p>
+          <button
+            onClick={() => setB({
+              ...b,
+              bol: b.bol ? undefined : { u: "mg/kg", lo: 0.1, hi: 1, tope: 0, via: "IV", dil: { m: 100, um: "mg", v: 10, d: "SSN 0.9%" } },
+            })}
+            className="text-[11.5px] font-bold transition"
+            style={{ color: b.bol ? "#ef4444" : AC }}
+          >
+            {b.bol ? "Quitar" : "+ Añadir"}
+          </button>
+        </div>
+        {b.bol && (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
+            {fila("Unidad",
+              <select
+                value={b.bol.u}
+                onChange={(e) => setB({ ...b, bol: { ...b.bol!, u: e.target.value } })}
+                className="flex-1 min-w-0 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[14px] text-slate-700 outline-none"
+                style={{ fontSize: "16px" }}
+              >
+                {todasDosis.map((u) => <option key={u} value={u}>{u}</option>)}
+              </select>
+            )}
+            {fila("Mínimo", campoNum(b.bol.lo, (n) => setB({ ...b, bol: { ...b.bol!, lo: n } })))}
+            {fila("Máximo", campoNum(b.bol.hi, (n) => setB({ ...b, bol: { ...b.bol!, hi: n } })))}
+            <div className="flex items-center gap-2">
+              <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">Tope</span>
+              {campoNum(b.bol.tope ?? 0, (n) => setB({ ...b, bol: { ...b.bol!, tope: n } }))}
+              <span className="text-[12px] text-slate-400 w-12 shrink-0">{parseDosis(b.bol.u).amt}</span>
+            </div>
+            {fila("Vía",
+              <input
+                value={b.bol.via ?? ""}
+                onChange={(e) => setB({ ...b, bol: { ...b.bol!, via: e.target.value } })}
+                className="flex-1 min-w-0 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[14px] text-slate-700 outline-none focus:border-[#0284c7] transition"
+                style={{ fontSize: "16px" }}
+              />
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Nota */}
+      <div>
+        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-2">Nota</p>
+        <textarea
+          value={b.nota ?? ""} onChange={(e) => setB({ ...b, nota: e.target.value })}
+          className="w-full bg-white border border-slate-100 rounded-2xl shadow-sm p-4 text-[14px] text-slate-700 leading-relaxed outline-none focus:border-[#0284c7] transition resize-y"
+          style={{ minHeight: 130, fontSize: "16px" }}
+        />
+      </div>
+
+      <button
+        onClick={() => onGuardar(b)}
+        className="w-full rounded-xl py-3.5 text-[14.5px] font-bold text-white transition active:scale-[0.99]"
+        style={{ background: AC, boxShadow: "0 4px 14px rgba(2,132,199,0.28)" }}
+      >
+        Guardar
+      </button>
+      <button
+        onClick={() => { if (confirm(`¿Eliminar «${drug.n}»?`)) onEliminar(); }}
+        className="w-full rounded-xl py-3.5 text-[14px] font-semibold text-red-500 bg-white border border-red-200 transition hover:bg-red-50"
+      >
+        Eliminar fármaco
+      </button>
     </div>
   );
 }
