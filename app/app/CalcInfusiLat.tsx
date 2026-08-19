@@ -372,7 +372,7 @@ export default function CalcInfusiLat({ userId, onBack, onProfile }: Props) {
         {/* Navegación inferior */}
         <div
           className="sticky bottom-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-100"
-          style={{ paddingBottom: "max(10px, env(safe-area-inset-bottom))" }}
+          style={{ paddingBottom: "max(15px, calc(env(safe-area-inset-bottom) + 5px))" }}
         >
           <nav className="flex max-w-md mx-auto pt-1.5">
             {([
