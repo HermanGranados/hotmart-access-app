@@ -46,6 +46,23 @@ function CloudOffIcon(p: React.SVGProps<SVGSVGElement>) {
   return <svg {...p} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m2 2 20 20"/><path d="M5.8 5.8A6 6 0 0 0 8 18h9a4 4 0 0 0 2.4-7.2"/><path d="M9.7 4.5A6 6 0 0 1 18 10"/></svg>;
 }
 
+/* Iconos de la barra inferior — portados del HTML original */
+function NavFavIcon(p: React.SVGProps<SVGSVGElement>) {
+  return <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.9 21l1.2-6.8-5-4.9 6.9-1z"/></svg>;
+}
+function NavCatsIcon(p: React.SVGProps<SVGSVGElement>) {
+  return <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M9 2h6v6.2l5 9.1A3 3 0 0 1 17.4 22H6.6A3 3 0 0 1 4 17.3l5-9.1zm2 2v4.7L6.6 17h10.8L13 8.7V4z"/></svg>;
+}
+function NavSetsIcon(p: React.SVGProps<SVGSVGElement>) {
+  return <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v4H3zm0 6h18v4H3zm0 6h18v4H3z"/></svg>;
+}
+function NavPesoIcon(p: React.SVGProps<SVGSVGElement>) {
+  return <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a3 3 0 0 1 2.8 2H19a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4.2A3 3 0 0 1 12 3zm0 5a5 5 0 0 0-4.6 3h9.2A5 5 0 0 0 12 8z"/></svg>;
+}
+function NavCfgIcon(p: React.SVGProps<SVGSVGElement>) {
+  return <svg {...p} viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm9 4c0-.7-.1-1.3-.2-2l2-1.5-2-3.5-2.4 1a8 8 0 0 0-1.7-1l-.4-2.5h-4l-.4 2.5a8 8 0 0 0-1.7 1l-2.4-1-2 3.5L3.2 10a8 8 0 0 0 0 4l-2 1.5 2 3.5 2.4-1c.5.4 1.1.7 1.7 1l.4 2.5h4l.4-2.5c.6-.3 1.2-.6 1.7-1l2.4 1 2-3.5-2-1.5c.1-.7.2-1.3.2-2z"/></svg>;
+}
+
 /* ── Cabecera ────────────────────────────────────────────────────── */
 
 function AppHeader({ title, onBack, onProfile }: { title: string; onBack: () => void; onProfile: () => void }) {
@@ -353,17 +370,25 @@ export default function CalcInfusiLat({ userId, onBack, onProfile }: Props) {
         </main>
 
         {/* Navegación inferior */}
-        <div className="sticky bottom-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-100">
-          <nav className="flex max-w-md mx-auto">
+        <div
+          className="sticky bottom-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-100"
+          style={{ paddingBottom: "max(10px, env(safe-area-inset-bottom))" }}
+        >
+          <nav className="flex max-w-md mx-auto pt-1.5">
             {([
-              ["fav", "Favoritos"], ["cats", "Fármacos"], ["sets", "Sets"], ["peso", "Peso"], ["cfg", "Ajustes"],
-            ] as [Pestana, string][]).map(([k, label]) => (
+              ["fav", "Favoritos", NavFavIcon],
+              ["cats", "Fármacos", NavCatsIcon],
+              ["sets", "Sets", NavSetsIcon],
+              ["peso", "Peso", NavPesoIcon],
+              ["cfg", "Ajustes", NavCfgIcon],
+            ] as [Pestana, string, React.ComponentType<React.SVGProps<SVGSVGElement>>][]).map(([k, label, Icono]) => (
               <button
                 key={k} onClick={() => irA(k)}
-                className="flex-1 py-2.5 text-[10.5px] font-semibold transition"
+                className="flex-1 flex flex-col items-center gap-1 py-1.5 transition active:scale-95"
                 style={{ color: tab === k ? AC : "#94a3b8" }}
               >
-                {label}
+                <Icono className="w-[22px] h-[22px]" />
+                <span className="text-[10px] font-semibold leading-none">{label}</span>
               </button>
             ))}
           </nav>
