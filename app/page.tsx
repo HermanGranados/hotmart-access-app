@@ -1,5 +1,6 @@
-import { redirect } from "next/navigation";
+// app/page.tsx
+import PublicClient from "./PublicClient";
 
-export default function Home() {
-  redirect("/login");
+export default function HomePage() {
+  return <PublicClient />;
 }
