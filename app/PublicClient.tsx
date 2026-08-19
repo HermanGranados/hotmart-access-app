@@ -489,6 +489,13 @@ function UpgradePopup({ h, onClose }: { h: Herramienta; onClose: () => void }) {
   );
 }
 
+const hiperOptions = [
+  { val: "20", label: "Sodio Cloruro 3.4 mEq/mL", desc: "Cloruro de Sodio 20%", pres: "Ampolla 10 mL" },
+  { val: "17.7", label: "Sodio Cloruro 3 mEq/mL", desc: "Cloruro de Sodio 17.7%", pres: "Ampolla 10 mL" },
+  { val: "11.7", label: "Sodio Cloruro 2 mEq/mL", desc: "Cloruro de Sodio 11.7%", pres: "Ampolla 10 mL" },
+  { val: "10", label: "Sodio Cloruro 1.7 mEq/mL", desc: "Cloruro de Sodio 10%", pres: "Ampolla 10 mL" },
+  { val: "3", label: "Sodio Cloruro 0.51 mEq/mL", desc: "Cloruro de Sodio 3%", pres: "Bolsa 250 mL" },
+];
 function CalcHiperSaline({ onBack }: { onBack: () => void }) {
   const [vf, setVf] = useState("");
   const [cf, setCf] = useState("");
