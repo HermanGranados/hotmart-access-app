@@ -6,7 +6,6 @@ import { getUserMembership } from "@/lib/get-user-membership";
 export default async function Page() {
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.auth.getUser();
-
   const user = data?.user;
 
   if (!user) {
@@ -19,6 +18,7 @@ export default async function Page() {
     <VaporaClient
       isPremium={membership.isPremium}
       userEmail={membership.email}
+      userId={user.id}
       planName={membership.planName}
       daysRemaining={membership.daysRemaining}
     />
