@@ -87,11 +87,13 @@ export function TarjetaPremium({ h, onClick }: { h: Herramienta; onClick: () => 
 
 /**
  * Fila clara para las herramientas libres.
- * `mostrarBadge` pinta el sello «Gratis» — se usa en la versión pública,
- * donde tiene sentido distinguirlas; dentro de la app no hace falta.
+ *
+ * `badge` pinta el sello de la esquina. En la versión pública se usa «Gratis»
+ * para dejar claro que no hace falta cuenta; dentro de la app de pago se usa
+ * «Incluida», que es lo que significa ahí. Omitirlo lo quita.
  */
-export function TarjetaLibre({ h, onClick, mostrarBadge }: {
-  h: Herramienta; onClick: () => void; mostrarBadge?: boolean;
+export function TarjetaLibre({ h, onClick, badge }: {
+  h: Herramienta; onClick: () => void; badge?: string;
 }) {
   return (
     <button onClick={onClick}
@@ -106,10 +108,10 @@ export function TarjetaLibre({ h, onClick, mostrarBadge }: {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-0.5">
             <span className="text-[16px] font-black text-slate-900">{h.nombre}</span>
-            {mostrarBadge && (
+            {badge && (
               <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md"
                 style={{ background: `${h.color.acento}1a`, color: h.color.acento, border: `1px solid ${h.color.acento}33` }}>
-                Gratis
+                {badge}
               </span>
             )}
           </div>

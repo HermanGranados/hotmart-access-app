@@ -58,7 +58,7 @@ export const HERRAMIENTAS: Herramienta[] = [
   {
     id: "infusilat",
     nombre: "InfusiLat",
-    descripcion: "Calculadora de infusiones · 110 fármacos",
+    descripcion: "Cálculo de infusiones, bolos y diluciones",
     icono: "https://infusilat.academiadeanestesia.com/infusilat-ico.jpg",
     acceso: "premium",
     color: {

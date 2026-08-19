@@ -757,7 +757,7 @@ export default function PublicClient() {
               </div>
               <div className="space-y-3">
                 {LIBRES.map((h) => (
-                  <TarjetaLibre key={h.id} h={h} mostrarBadge onClick={() => setVista(h.id as Vista)} />
+                  <TarjetaLibre key={h.id} h={h} badge="Gratis" onClick={() => setVista(h.id as Vista)} />
                 ))}
               </div>
             </div>
