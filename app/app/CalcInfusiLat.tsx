@@ -328,7 +328,7 @@ export default function CalcInfusiLat({ userId, onBack, onProfile }: Props) {
           <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-4">
             <AlertIcon className="w-12 h-12 text-slate-300" />
             <p className="text-[15px] font-semibold text-slate-700">Tu acceso Premium no está activo</p>
-            <p className="text-[13px] text-slate-400 leading-relaxed">
+            <p className="text-[13px] text-slate-500 leading-relaxed">
               InfusiLat forma parte de las herramientas Premium de Vapora.
             </p>
             <button onClick={onBack} className="mt-2 px-5 py-3 rounded-xl text-white text-[14px] font-bold" style={{ background: AC }}>
@@ -347,7 +347,7 @@ export default function CalcInfusiLat({ userId, onBack, onProfile }: Props) {
           <AppHeader title="InfusiLat" onBack={onBack} onProfile={onProfile} />
           <div className="flex-1 flex flex-col items-center justify-center gap-3">
             <div className="w-8 h-8 rounded-full border-2 border-slate-200 animate-spin" style={{ borderTopColor: AC }} />
-            <p className="text-[13px] text-slate-400">{error ? "No se pudo cargar" : "Cargando catálogo…"}</p>
+            <p className="text-[13px] text-slate-500">{error ? "No se pudo cargar" : "Cargando catálogo…"}</p>
           </div>
         </div>
       </div>
@@ -605,13 +605,11 @@ function FilaDrug({ d, cats, onClick }: { d: Farmaco; cats: Record<string, strin
     <button onClick={onClick} className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-slate-50 transition active:bg-slate-100">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <span className="text-[15px] font-semibold text-slate-800 truncate">{d.n}</span>
-          {d.fav ? <StarIcon filled className="w-3.5 h-3.5 shrink-0" style={{ color: "#f59e0b" }} /> : null}
+          <span className="text-[15px] font-semibold text-slate-900 truncate">{d.n}</span>
+          {d.fav ? <StarIcon filled className="w-2.5 h-2.5 shrink-0" style={{ color: "#f59e0b" }} /> : null}
         </div>
-        <div className="text-[11.5px] text-slate-400 truncate">{cats[d.c] ?? ""}</div>
+        <div className="text-[12px] text-slate-500 truncate">{cats[d.c] ?? ""}</div>
       </div>
-      {d.inf && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0" style={{ background: AC_SOFT, color: AC }}>inf</span>}
-      {d.bol && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 bg-emerald-50 text-emerald-600">bolo</span>}
       {d.alerta ? <span className="text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 bg-red-50 text-red-500">!</span> : null}
       <ChevronRightIcon className="w-3.5 h-3.5 text-slate-300 shrink-0" />
     </button>
@@ -626,29 +624,31 @@ function VistaFav({ drugs, cats, onOpen, onQuitarFav, onNuevo }: {
 }) {
   const favs = drugs.filter((d) => d.fav);
   return (
-    <div className="px-4 py-4 space-y-3">
+    <div className="py-2">
       {favs.length === 0 ? (
         <div className="text-center py-14 px-6">
           <StarIcon className="w-10 h-10 mx-auto mb-3 text-slate-200" />
-          <p className="text-[14px] text-slate-400 leading-relaxed">
+          <p className="text-[14px] text-slate-500 leading-relaxed">
             Sin favoritos todavía.<br />Marca la estrella dentro de cualquier fármaco.
           </p>
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+          <div className="border-y border-slate-100">
             {favs.map((d) => (
               <Deslizable key={d.id} etiqueta="Quitar" onEliminar={() => onQuitarFav(d.id)}>
                 <FilaDrug d={d} cats={cats} onClick={() => onOpen(d.id)} />
               </Deslizable>
             ))}
           </div>
-          <p className="text-[11.5px] text-slate-400 text-center">
+          <p className="text-[12px] text-slate-500 text-center px-6 mt-3">
             Desliza un fármaco hacia la izquierda para quitarlo de favoritos.
           </p>
         </>
       )}
-      <BotonAgregar label="Agregar fármaco" onClick={onNuevo} />
+      <div className="px-4 mt-4">
+        <BotonAgregar label="Agregar fármaco" onClick={onNuevo} />
+      </div>
     </div>
   );
 }
@@ -672,43 +672,49 @@ function VistaCats({ drugs, cats, q, setQ, onCat, onOpen }: {
   }, [q, drugs]);
 
   return (
-    <div className="px-4 py-4 space-y-4">
-      <div className="relative">
-        <SearchIcon className="w-4 h-4 text-slate-300 absolute left-3.5 top-1/2 -translate-y-1/2" />
-        <input
-          value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar fármaco…"
-          className="w-full bg-slate-50 border border-slate-100 rounded-xl pl-10 pr-4 py-3 text-[15px] text-slate-800 outline-none focus:border-[#0284c7] transition placeholder:text-slate-300"
-          style={{ fontSize: "16px" }}
-        />
+    <div className="py-3">
+      <div className="px-4 mb-3">
+        <div className="relative">
+          <SearchIcon className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar fármaco…"
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-3 text-[15px] text-slate-900 outline-none focus:border-[#0284c7] transition placeholder:text-slate-400"
+            style={{ fontSize: "16px" }}
+          />
+        </div>
       </div>
 
       {q.trim() ? (
         resultados.length ? (
-          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-            {resultados.map((d) => <FilaDrug key={d.id} d={d} cats={cats} onClick={() => onOpen(d.id)} />)}
+          <div className="border-y border-slate-100">
+            {resultados.map((d) => (
+              <div key={d.id} className="border-b border-slate-50 last:border-0">
+                <FilaDrug d={d} cats={cats} onClick={() => onOpen(d.id)} />
+              </div>
+            ))}
           </div>
         ) : (
-          <div className="text-center py-14 text-[14px] text-slate-400">Sin resultados</div>
+          <div className="text-center py-14 text-[14px] text-slate-500">Sin resultados</div>
         )
       ) : (
         <>
-          <button onClick={() => onCat(null)} className="w-full bg-white rounded-2xl border border-slate-100 shadow-sm px-4 py-3.5 flex items-center gap-3 text-left hover:bg-slate-50 transition">
-            <span className="flex-1 text-[15px] font-bold text-slate-800">Todos los fármacos</span>
-            <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{drugs.length}</span>
-            <ChevronRightIcon className="w-3.5 h-3.5 text-slate-300" />
-          </button>
+          <div className="border-y border-slate-100">
+            <button onClick={() => onCat(null)} className="w-full px-4 py-3 flex items-center gap-3 text-left hover:bg-slate-50 transition active:bg-slate-100">
+              <span className="flex-1 text-[15px] font-bold text-slate-900">Todos los fármacos</span>
+              <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">{drugs.length}</span>
+              <ChevronRightIcon className="w-3.5 h-3.5 text-slate-300" />
+            </button>
+          </div>
 
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-2">Categorías</p>
-            <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
-              {Object.keys(cats).map((k) => (
-                <button key={k} onClick={() => onCat(k)} className="w-full flex items-center gap-3 px-4 py-3 border-b border-slate-50 last:border-0 text-left hover:bg-slate-50 transition">
-                  <span className="flex-1 text-[14.5px] font-medium text-slate-700 truncate">{cats[k]}</span>
-                  <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">{cuenta[k] ?? 0}</span>
-                  <ChevronRightIcon className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                </button>
-              ))}
-            </div>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500 px-4 mt-5 mb-2">Categorías</p>
+          <div className="border-y border-slate-100">
+            {Object.keys(cats).map((k) => (
+              <button key={k} onClick={() => onCat(k)} className="w-full flex items-center gap-3 px-4 py-3 border-b border-slate-50 last:border-0 text-left hover:bg-slate-50 transition active:bg-slate-100">
+                <span className="flex-1 text-[14.5px] font-medium text-slate-800 truncate">{cats[k]}</span>
+                <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">{cuenta[k] ?? 0}</span>
+                <ChevronRightIcon className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+              </button>
+            ))}
           </div>
         </>
       )}
@@ -737,11 +743,11 @@ function VistaList({ drugs, cats, cat, onOpen, onEliminar, onNuevo }: {
   }, [lista]);
 
   return (
-    <div className="px-4 py-4 space-y-4">
+    <div className="py-3">
       {Object.keys(grupos).map((letra) => (
-        <div key={letra}>
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-2">{letra}</p>
-          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+        <div key={letra} className="mb-4">
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500 px-4 mb-1.5">{letra}</p>
+          <div className="border-y border-slate-100">
             {grupos[letra].map((d) => (
               <Deslizable
                 key={d.id}
@@ -754,10 +760,12 @@ function VistaList({ drugs, cats, cat, onOpen, onEliminar, onNuevo }: {
         </div>
       ))}
 
-      <p className="text-[11.5px] text-slate-400 text-center">
+      <p className="text-[12px] text-slate-500 text-center px-6 mb-4">
         Desliza hacia la izquierda para eliminar un fármaco.
       </p>
-      <BotonAgregar label="Agregar fármaco" onClick={onNuevo} />
+      <div className="px-4">
+        <BotonAgregar label="Agregar fármaco" onClick={onNuevo} />
+      </div>
     </div>
   );
 }
@@ -771,10 +779,10 @@ function TarjetaDil({ dil, fam, onChange }: { dil: Dilucion; fam: Familia; onCha
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
-      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Dilución</p>
+      <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Dilución</p>
 
       <div className="flex items-center gap-2">
-        <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">Fármaco</span>
+        <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">Fármaco</span>
         <input
           inputMode="decimal" value={fmt(dil.m)}
           onChange={(e) => onChange({ ...dil, m: num(e.target.value) })}
@@ -790,17 +798,17 @@ function TarjetaDil({ dil, fam, onChange }: { dil: Dilucion; fam: Familia; onCha
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">en</span>
+        <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">en</span>
         <input
           inputMode="decimal" value={fmt(dil.v)}
           onChange={(e) => onChange({ ...dil, v: num(e.target.value) || 1 })}
           className="flex-1 min-w-0 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[16px] font-bold text-right text-slate-800 outline-none focus:border-[#0284c7] transition"
         />
-        <span className="text-[13px] text-slate-400 w-[90px] shrink-0">mL</span>
+        <span className="text-[13px] text-slate-500 w-[90px] shrink-0">mL</span>
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">de</span>
+        <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">de</span>
         <select
           value={dil.d} onChange={(e) => onChange({ ...dil, d: e.target.value })}
           className="flex-1 min-w-0 bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[13px] text-slate-700 outline-none"
@@ -811,11 +819,11 @@ function TarjetaDil({ dil, fam, onChange }: { dil: Dilucion; fam: Familia; onCha
       </div>
 
       <div className="flex items-center gap-2 pt-2 border-t border-dashed border-slate-100">
-        <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">=</span>
+        <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">=</span>
         <span className="flex-1 text-right text-[17px] font-bold" style={{ color: AC }}>
           {fmt(c / (AMT[dil.um]?.f ?? 1))}
         </span>
-        <span className="text-[13px] text-slate-400 w-[90px] shrink-0">{dil.um}/mL</span>
+        <span className="text-[13px] text-slate-500 w-[90px] shrink-0">{dil.um}/mL</span>
       </div>
     </div>
   );
@@ -866,7 +874,7 @@ function VistaDrug({ drug, W, wMode, gotas, modo, setModo, onFav, onDil }: {
       )}
       {modoOk === "nota" && (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
-          <p className="text-[14.5px] text-slate-600 leading-relaxed whitespace-pre-wrap">{drug.nota || "Sin notas."}</p>
+          <p className="text-[14.5px] text-slate-700 leading-relaxed whitespace-pre-wrap">{drug.nota || "Sin notas."}</p>
         </div>
       )}
 
@@ -937,7 +945,7 @@ function PanelInf({ drug, W, wMode, gotas, onDil }: {
     <>
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
         <div className="flex items-center gap-2">
-          <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">Ritmo</span>
+          <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">Ritmo</span>
           {campo(dosisHoraARitmo(dph, uRate, W), (n) => setDph(ritmoADosisHora(n, uRate, W)), fuera)}
           <select
             value={uRate} onChange={(e) => setURate(e.target.value)}
@@ -949,7 +957,7 @@ function PanelInf({ drug, W, wMode, gotas, onDil }: {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">=</span>
+          <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">=</span>
           {campo(dosisHoraARitmo(dph, uAbs, W), (n) => setDph(ritmoADosisHora(n, uAbs, W)))}
           <select
             value={uAbs} onChange={(e) => setUAbs(e.target.value)}
@@ -961,12 +969,12 @@ function PanelInf({ drug, W, wMode, gotas, onDil }: {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">=</span>
+          <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">=</span>
           {campo(ml, (n) => setDph(n * c), fuera, true)}
           <span className="text-[13px] font-medium text-slate-400 shrink-0" style={{ width: 118 }}>mL/hr</span>
         </div>
 
-        <div className="pt-3 border-t border-dashed border-slate-100 text-[12.5px] text-slate-500 leading-relaxed">
+        <div className="pt-3 border-t border-dashed border-slate-100 text-[12.5px] text-slate-600 leading-relaxed">
           Rango <b className="text-slate-700">{fmt(inf.lo)} – {fmt(inf.hi)}</b> {inf.u}<br />
           = <b className="text-slate-700">{fmt(c ? lo / c : 0)} – {fmt(c ? hi / c : 0)}</b> mL/hr con esta dilución<br />
           ≈ <b className="text-slate-700">{fmt(gotasMin)}</b> gotas/min ({gotas} gotas/mL) · peso {WLBL[wMode]} {fmt(W)} kg
@@ -1029,7 +1037,7 @@ function PanelBol({ drug, W, wMode, onDil }: {
     <>
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
         <div className="flex items-center gap-2">
-          <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">Dosis</span>
+          <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">Dosis</span>
           {campo(cantidadADosis(amt, uDose, W), (n) => setAmt(dosisACantidad(n, uDose, W)), mal)}
           <select
             value={uDose} onChange={(e) => setUDose(e.target.value)}
@@ -1041,7 +1049,7 @@ function PanelBol({ drug, W, wMode, onDil }: {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">=</span>
+          <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">=</span>
           {campo(amt / fAmt, (n) => setAmt(n * fAmt))}
           <select
             value={uAmt} onChange={(e) => setUAmt(e.target.value)}
@@ -1053,12 +1061,12 @@ function PanelBol({ drug, W, wMode, onDil }: {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">=</span>
+          <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">=</span>
           {campo(ml, (n) => setAmt(n * c), mal, true)}
           <span className="text-[13px] font-medium text-slate-400 shrink-0" style={{ width: 118 }}>mL</span>
         </div>
 
-        <div className="pt-3 border-t border-dashed border-slate-100 text-[12.5px] text-slate-500 leading-relaxed">
+        <div className="pt-3 border-t border-dashed border-slate-100 text-[12.5px] text-slate-600 leading-relaxed">
           Rango <b className="text-slate-700">{fmt(bol.lo)} – {fmt(bol.hi)}</b> {bol.u}
           {" = "}<b className="text-slate-700">{fmt(lo / fAmt)} – {fmt(hi / fAmt)}</b> {uAmt}
           {bol.tope ? <><br />Máximo por dosis <b className="text-slate-700">{fmt(bol.tope)} {parseDosis(bol.u).amt}</b></> : null}
@@ -1084,36 +1092,38 @@ function VistaSets({ sets, drugs, onOpen, onEliminar, onNuevo }: {
   onEliminar: (i: number) => void; onNuevo: () => void;
 }) {
   return (
-    <div className="px-4 py-4 space-y-3">
+    <div className="py-3">
       {!sets.length ? (
-        <div className="text-center py-14 text-[14px] text-slate-400">Sin sets todavía</div>
+        <div className="text-center py-14 text-[14px] text-slate-500">Sin sets todavía</div>
       ) : (
         <>
-          <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm">
+          <div className="border-y border-slate-100">
             {sets.map((s, i) => (
               <Deslizable
                 key={s.id}
                 onEliminar={() => { if (confirm(`¿Eliminar el set «${s.n}»?`)) onEliminar(i); }}
               >
-                <button onClick={() => onOpen(i)} className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-slate-50 transition">
+                <button onClick={() => onOpen(i)} className="w-full flex items-center gap-2.5 px-4 py-3 text-left hover:bg-slate-50 transition active:bg-slate-100">
                   <div className="flex-1 min-w-0">
-                    <div className="text-[15px] font-semibold text-slate-800 truncate">{s.n}</div>
-                    <div className="text-[11.5px] text-slate-400 truncate">
+                    <div className="text-[15px] font-semibold text-slate-900 truncate">{s.n}</div>
+                    <div className="text-[12px] text-slate-500 truncate">
                       {s.items.map((x) => drugs.find((d) => d.id === x.d)?.n ?? "?").join(" · ") || "Sin fármacos"}
                     </div>
                   </div>
-                  <span className="text-[11px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">{s.items.length}</span>
+                  <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">{s.items.length}</span>
                   <ChevronRightIcon className="w-3.5 h-3.5 text-slate-300 shrink-0" />
                 </button>
               </Deslizable>
             ))}
           </div>
-          <p className="text-[11.5px] text-slate-400 text-center">
+          <p className="text-[12px] text-slate-500 text-center px-6 mt-3">
             Desliza un set hacia la izquierda para eliminarlo.
           </p>
         </>
       )}
-      <BotonAgregar label="Agregar set" onClick={onNuevo} />
+      <div className="px-4 mt-4">
+        <BotonAgregar label="Agregar set" onClick={onNuevo} />
+      </div>
     </div>
   );
 }
@@ -1145,7 +1155,7 @@ function VistaSet({ set, drugs, W, wMode, onVal, onDrug, onQuitar, onAgregar, on
       />
 
       {set.items.length === 0 && (
-        <div className="text-center py-10 text-[14px] text-slate-400">
+        <div className="text-center py-10 text-[14px] text-slate-500">
           Este set está vacío.<br />Añade fármacos con el botón de abajo.
         </div>
       )}
@@ -1199,7 +1209,7 @@ function VistaSet({ set, drugs, W, wMode, onVal, onDrug, onQuitar, onAgregar, on
               <span className="text-[12px] text-slate-400 shrink-0">{esInf ? "mL/hr" : "mL"}</span>
             </div>
 
-            <p className="text-[11.5px] text-slate-400 leading-relaxed">
+            <p className="text-[12px] text-slate-500 leading-relaxed">
               {fmt(src.dil.m)} {src.dil.um} en {fmt(src.dil.v)} mL de {src.dil.d} · rango {fmt(src.lo)}–{fmt(src.hi)} {src.u}
               {fuera && <span className="text-red-500 font-semibold"> · fuera de rango</span>}
             </p>
@@ -1256,7 +1266,7 @@ function VistaSet({ set, drugs, W, wMode, onVal, onDrug, onQuitar, onAgregar, on
 function Stat({ l, v, u }: { l: string; v: number; u: string }) {
   return (
     <div className="bg-slate-50 border border-slate-100 rounded-xl px-3 py-2.5">
-      <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold mb-0.5">{l}</div>
+      <div className="text-[10px] text-slate-500 uppercase tracking-wider font-semibold mb-0.5">{l}</div>
       <div className="text-[19px] font-bold text-slate-800">
         {fmt(v)} <span className="text-[11px] font-normal text-slate-400">{u}</span>
       </div>
@@ -1274,7 +1284,7 @@ function VistaPeso({ pac, pesos, wMode, setWMode, onPac }: {
 
   const fila = (label: string, campo: keyof Paciente, unidad: string) => (
     <div className="flex items-center gap-2">
-      <span className="w-14 text-[12px] text-slate-400 text-right shrink-0">{label}</span>
+      <span className="w-14 text-[12px] text-slate-500 text-right shrink-0">{label}</span>
       <input
         inputMode="decimal" value={fmt(pac[campo] as number)}
         onChange={(e) => onPac({ [campo]: num(e.target.value) } as Partial<Paciente>)}
@@ -1291,7 +1301,7 @@ function VistaPeso({ pac, pesos, wMode, setWMode, onPac }: {
         {fila("Talla", "talla", "cm")}
         {fila("Edad", "edad", "años")}
         <div className="flex items-center gap-2">
-          <span className="w-14 text-[12px] text-slate-400 text-right shrink-0">Sexo</span>
+          <span className="w-14 text-[12px] text-slate-500 text-right shrink-0">Sexo</span>
           <div className="flex gap-2">
             {(["m", "f"] as const).map((s) => (
               <button
@@ -1309,7 +1319,7 @@ function VistaPeso({ pac, pesos, wMode, setWMode, onPac }: {
       </div>
 
       <div>
-        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-2">Pesos de dosificación</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500 px-1 mb-2">Pesos de dosificación</p>
         <div className="grid grid-cols-2 gap-2.5">
           <Stat l="Total" v={pesos.total} u="kg" />
           <Stat l="Ideal (Devine)" v={pesos.ideal} u="kg" />
@@ -1331,7 +1341,7 @@ function VistaPeso({ pac, pesos, wMode, setWMode, onPac }: {
             </button>
           ))}
         </div>
-        <p className="text-[11.5px] text-slate-400 leading-relaxed mt-2.5">
+        <p className="text-[12px] text-slate-500 leading-relaxed mt-2.5">
           El peso marcado es el que usan todas las calculadoras. Propofol y relajantes: ajustado o ideal.
           Remifentanilo: magro. Hidrosolubles y sugammadex: total.
         </p>
@@ -1339,7 +1349,7 @@ function VistaPeso({ pac, pesos, wMode, setWMode, onPac }: {
 
       {esPed && (
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-2">Pediatría</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500 px-1 mb-2">Pediatría</p>
           <div className="grid grid-cols-2 gap-2.5">
             <Stat l="Peso estimado" v={(E + 4) * 2} u="kg" />
             <Stat l="TET sin balón" v={E / 4 + 4} u="mm DI" />
@@ -1354,7 +1364,7 @@ function VistaPeso({ pac, pesos, wMode, setWMode, onPac }: {
             <Stat l="Atropina" v={Math.max(100, W * 20)} u="mcg" />
             <Stat l="Bolo cristaloide" v={W * 10} u="mL" />
           </div>
-          <p className="text-[11.5px] text-slate-400 leading-relaxed mt-2.5">
+          <p className="text-[12px] text-slate-500 leading-relaxed mt-2.5">
             Peso estimado APLS (edad+4)×2 · TET Cole · desfibrilación 4 J/kg · cardioversión 1 J/kg (2 J/kg si falla) · adrenalina 10 µg/kg.
           </p>
         </div>
@@ -1384,7 +1394,7 @@ function VistaEdit({ drug, cats, onGuardar, onEliminar }: {
 
   const fila = (label: string, dentro: React.ReactNode) => (
     <div className="flex items-center gap-2">
-      <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">{label}</span>
+      <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">{label}</span>
       {dentro}
     </div>
   );
@@ -1410,7 +1420,7 @@ function VistaEdit({ drug, cats, onGuardar, onEliminar }: {
           </select>
         )}
         <div className="flex items-center gap-2">
-          <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">Marcas</span>
+          <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">Marcas</span>
           <div className="flex gap-2">
             <button
               onClick={() => setB({ ...b, fav: b.fav ? 0 : 1 })}
@@ -1437,7 +1447,7 @@ function VistaEdit({ drug, cats, onGuardar, onEliminar }: {
       {/* Infusión */}
       <div>
         <div className="flex items-center justify-between px-1 mb-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Infusión</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Infusión</p>
           <button
             onClick={() => setB({
               ...b,
@@ -1470,7 +1480,7 @@ function VistaEdit({ drug, cats, onGuardar, onEliminar }: {
       {/* Bolo */}
       <div>
         <div className="flex items-center justify-between px-1 mb-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400">Bolo</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500">Bolo</p>
           <button
             onClick={() => setB({
               ...b,
@@ -1497,7 +1507,7 @@ function VistaEdit({ drug, cats, onGuardar, onEliminar }: {
             {fila("Mínimo", campoNum(b.bol.lo, (n) => setB({ ...b, bol: { ...b.bol!, lo: n } })))}
             {fila("Máximo", campoNum(b.bol.hi, (n) => setB({ ...b, bol: { ...b.bol!, hi: n } })))}
             <div className="flex items-center gap-2">
-              <span className="w-16 text-[12px] text-slate-400 text-right shrink-0">Tope</span>
+              <span className="w-16 text-[12px] text-slate-500 text-right shrink-0">Tope</span>
               {campoNum(b.bol.tope ?? 0, (n) => setB({ ...b, bol: { ...b.bol!, tope: n } }))}
               <span className="text-[12px] text-slate-400 w-12 shrink-0">{parseDosis(b.bol.u).amt}</span>
             </div>
@@ -1515,7 +1525,7 @@ function VistaEdit({ drug, cats, onGuardar, onEliminar }: {
 
       {/* Nota */}
       <div>
-        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-2">Nota</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500 px-1 mb-2">Nota</p>
         <textarea
           value={b.nota ?? ""} onChange={(e) => setB({ ...b, nota: e.target.value })}
           className="w-full bg-white border border-slate-100 rounded-2xl shadow-sm p-4 text-[14px] text-slate-700 leading-relaxed outline-none focus:border-[#0284c7] transition resize-y"
@@ -1558,7 +1568,7 @@ function VistaCfg({ estado, userId, onGotas, onRestaurado, onNovedades }: {
   return (
     <div className="px-4 py-4 space-y-5">
       <div>
-        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-2">Goteo</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500 px-1 mb-2">Goteo</p>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
           <div className="flex items-center gap-2">
             <input
@@ -1568,7 +1578,7 @@ function VistaCfg({ estado, userId, onGotas, onRestaurado, onNovedades }: {
             />
             <span className="text-[12px] text-slate-400 shrink-0">gotas/mL</span>
           </div>
-          <p className="text-[11.5px] text-slate-400 mt-2">Macrogotero 20 · microgotero 60.</p>
+          <p className="text-[12px] text-slate-500 mt-2">Macrogotero 20 · microgotero 60.</p>
         </div>
       </div>
 
@@ -1599,9 +1609,9 @@ function VistaCfg({ estado, userId, onGotas, onRestaurado, onNovedades }: {
       )}
 
       <div>
-        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-400 px-1 mb-2">Catálogo</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.16em] text-slate-500 px-1 mb-2">Catálogo</p>
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-2.5">
-          <p className="text-[12px] text-slate-400 leading-relaxed">
+          <p className="text-[12.5px] text-slate-500 leading-relaxed">
             {estado.data.drugs.length} fármacos · {estado.data.sets.length} sets.
             Tu copia es tuya: los cambios que hagas no se pierden ni se sobrescriben.
           </p>
