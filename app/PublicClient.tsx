@@ -375,7 +375,7 @@ function CalcLOCUDose({ onBack }: { onBack: () => void }) {
 
 // ── Popup Upgrade Premium ──────────────────────────────────────────────────
 
-function UpgradePopup({ tool, onClose }: { tool: "analgesiq" | "epimix" | "hipersaline"; onClose: () => void }) {
+function UpgradePopup({ tool, onClose }: { tool: "analgesiq" | "epimix"; onClose: () => void }) {
   const toolInfo = {
     analgesiq: {
       name: "ANALGESIQ",
@@ -388,12 +388,6 @@ function UpgradePopup({ tool, onClose }: { tool: "analgesiq" | "epimix" | "hiper
       desc: "Calculadora de mezclas para analgesia epidural con técnicas DPE, CSE y modos PCEA/PIEB.",
       icon: "https://academiadeanestesia.com/wp-content/uploads/2026/04/EpiMIx-logo.png",
       gradient: "from-[#F43F5E] to-[#fb7185]",
-    },
-    hipersaline: {
-      name: "HiperSaline",
-      desc: "Calculadora de solución salina hipertónica con protocolo de preparación paso a paso.",
-      icon: "https://academiadeanestesia.com/wp-content/uploads/2026/04/HiperSaline-Logo.png",
-      gradient: "from-[#10b981] to-[#34d399]",
     },
   }[tool];
 
@@ -489,8 +483,8 @@ function UpgradePopup({ tool, onClose }: { tool: "analgesiq" | "epimix" | "hiper
 
 // ── Home público principal ─────────────────────────────────────────────────
 
-type Vista = "home" | "mac" | "locu";
-type PremiumTool = "analgesiq" | "epimix" | "hipersaline" | null;
+type Vista = "home" | "mac" | "locu" | "hipersaline";
+type PremiumTool = "analgesiq" | "epimix" | null;
 
 export default function PublicClient() {
   const [vista, setVista] = useState<Vista>("home");
@@ -502,6 +496,7 @@ export default function PublicClient() {
 
   if (vista === "mac") return <CalcMACFlow onBack={() => setVista("home")} />;
   if (vista === "locu") return <CalcLOCUDose onBack={() => setVista("home")} />;
+
 
   return (
     <>
@@ -620,29 +615,7 @@ export default function PublicClient() {
                 </div>
               </button>
 
-              {/* HiperSaline */}
-              <button onClick={() => tryPremium("hipersaline")}
-                className="w-full rounded-[20px] overflow-hidden text-left active:scale-[0.99] transition-all mt-3"
-                style={{ background: "linear-gradient(135deg,#10b981,#34d399)", boxShadow: "0 8px 28px rgba(16,185,129,0.22)", padding: "1.5px" }}>
-                <div className="rounded-[19px] p-4 flex items-center gap-4 relative overflow-hidden"
-                  style={{ background: "linear-gradient(160deg,#052e16,#064e3b)" }}>
-                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0"
-                    style={{ background: "rgba(255,255,255,0.15)", border: "0.5px solid rgba(16,185,129,0.3)" }}>
-                    <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/HiperSaline-Logo.png" alt="HiperSaline" className="w-10 h-10 object-contain" />
-                  </div>
-                  <div className="flex-1 min-w-0 relative z-10">
-                    <div className="text-[16px] font-black mb-0.5"
-                      style={{ background: "linear-gradient(135deg,#a7f3d0,#6ee7b7,#34d399)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                      HiperSaline <span style={{ WebkitTextFillColor: "rgba(52,211,153,0.6)", fontSize: 12 }}>✦</span>
-                    </div>
-                    <div className="text-[13px]" style={{ color: "rgba(255,255,255,0.45)" }}>Solución Salina Hipertónica</div>
-                  </div>
-                  <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 relative z-10"
-                    style={{ background: "rgba(16,185,129,0.2)", border: "0.5px solid rgba(16,185,129,0.3)" }}>
-                    <ChevronRightIcon className="w-3.5 h-3.5" style={{ color: "#34d399" }} />
-                  </div>
-                </div>
-              </button>
+
             </div>
 
             {/* Herramientas Gratuitas */}
@@ -678,6 +651,20 @@ export default function PublicClient() {
                     <ChevronRightIcon className="w-3.5 h-3.5 text-slate-400" />
                   </div>
                 </button>
+
+                <a href="/login"
+                  className="w-full bg-white rounded-[20px] border border-slate-100 p-4 flex items-center gap-4 text-left shadow-sm hover:shadow-md transition-all active:scale-[0.99]">
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center overflow-hidden flex-shrink-0" style={{ background: "linear-gradient(135deg,#d1fae5,#a7f3d0)" }}>
+                    <img src="https://academiadeanestesia.com/wp-content/uploads/2026/04/HiperSaline-Logo.png" alt="HiperSaline" className="w-10 h-10 object-contain" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[16px] font-black text-slate-900 mb-0.5">HiperSaline</div>
+                    <div className="text-[13px] text-slate-400">Solución Salina Hipertónica</div>
+                  </div>
+                  <div className="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0">
+                    <ChevronRightIcon className="w-3.5 h-3.5 text-slate-400" />
+                  </div>
+                </a>
               </div>
             </div>
           </div>
